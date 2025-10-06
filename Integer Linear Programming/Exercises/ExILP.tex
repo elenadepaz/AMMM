@@ -1,6 +1,6 @@
 \documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
+\usepackage[english]{babel}
 \usepackage{amsmath, amssymb}
 \usepackage{geometry}
 \geometry{margin=2.5cm}
@@ -291,5 +291,70 @@ Minimize the number of lines with balls all of one colour:
       \[\boxed{x_{i_0 j_0 k_0} + x_{i_1 j_1 k_1} + x_{i_2 j_2 k_2} + y_l \geq 1}\]
   \end{enumerate}
 \end{enumerate}
+
+\newpage
+
+\section*{Problem 4: Infectious Disease Outbreak Investigation}
+
+\subsection*{Problem Statement}
+An outbreak of an infectious disease has been observed in a set $N$ of locations. There exists a set $M$ of teams capable of investigating these outbreaks. Team $i \in M$ can conclude its investigation of the outbreak in location $j \in N$ in $t_{ij}$ hours. Each team can either investigate zero, one, or two outbreaks. If a team investigates two outbreaks, they must travel from one location to the next. The travel time from location $j_1 \in N$ to location $j_2 \in N$ is $d_{j_1 j_2}$. Travel times can be assumed to be symmetric. Once all outbreaks have been investigated, a disease control center can take action to combat the outbreak. The goal is to minimize the amount of time necessary to complete the investigation of all locations.
+
+\subsection*{MIP Formulation}
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{ij}\) = 1 if team \(i\) investigates location \(j\), 0 otherwise.\\
+  Where \(1 \leq i \leq M\) and \(1 \leq j \leq N\). (of type binary)
+  \item \(y_{ij_1j_2}\) = 1 if team \(i\) investigates locations \(j_1\) and \(j_2\) in that order, 0 otherwise.\\
+  Where \(1 \leq i \leq M\) and \(1 \leq j_1, j_2 \leq N\). (of type binary)
+  \item z = the maximum time needed for any team to complete its investigations. (of type real non negative)
+\end{itemize}
+
+\textbf{Constraints:}
+\begin{enumerate}
+  \item Each team can investigate at most two locations:
+  \[\boxed{
+  \sum_{j=1}^N x_{ij} \leq 2 \quad \forall 1 \leq i \leq M}
+  \]
+  \item Each location must be investigated by exactly one team:
+  \[
+  \boxed{\sum_{i=1}^M x_{ij} = 1 \quad \forall 1 \leq j \leq N}
+  \]
+  \item Variables are linked: \(y_{ij_1j_2} \iff (x_{ij_1} \land x_{ij_2})\):
+  \begin{enumerate}
+    \item  \(y_{ij_{1j_2} } \implies (x_{ij_1} \land x_{ij_2})\):
+    \[ \lnot y_{ij_1 j_2} \lor (x_{ij_1} \land x_{ij_2}) \]
+    \[ (\lnot y_{ij_1 j_2} \lor x_{ij_1}) \land (\lnot y_{ij_1 j_2} \lor x_{ij_2}) \]
+    \[(1-y_{ij_1 j_2}) + x_{ij_1} \geq 1 \text{ and } (1-y_{ij_1 j_2}) + x_{ij_2} \geq 1\]
+    Therefore, we can express our constraints as:
+    \[
+      \boxed{y_{ij_1 j_2} \leq x_{ij_1}} \quad \text{and} \quad \boxed{y_{ij_1 j_2} \leq x_{ij_2}} \quad \forall 1 \leq i \leq M, 1 \leq j_1, j_2 \leq N
+    \]
+    \item \(y_{ij_{1j_2} } \impliedby (x_{ij_1} \land x_{ij_2})\):
+    \[ (x_{ij_1} \land x_{ij_2}) \implies y_{ij_1 j_2} \]
+    \[ \lnot (x_{ij_1} \land x_{ij_2}) \lor y_{ij_1 j_2} \]
+    \[ \lnot x_{ij_1} \lor \lnot x_{ij_2} \lor y_{ij_1 j_2} \]
+    \[ (1 - x_{ij_1}) + (1 - x_{ij_2}) + y_{ij_1 j_2} \geq 1 \]
+    Therefore, we can express our constraint as:
+    \[
+      \boxed{x_{ij_1} + x_{ij_2} - y_{ij_1 j_2} \leq 1} \quad \forall 1 \leq i \leq M, 1 \leq j_1, j_2 \leq N 
+    \]
+  \end{enumerate}
+
+  \item z has its intended meaning:
+  For every team \(i\), the time needed for team \(i\) to complete its investigations must be less than or equal to \(z\):
+  \[\boxed{\sum_{j=1}^N t_{ij} x_{ij} + \sum_{j_1,j_2=1; j_1<j_2}^{N} d_{j_1 j_2} \cdot y_{i j_1 j_2} \leq z \quad \forall 1 \leq i \leq M}\]
+
+\end{enumerate}
+
+\textbf{Objective function:}
+Minimize the time needed to complete the investigation of all locations.\\
+\[
+  \min \max _{1 \leq i \leq M} \left\{ \text{time needed for team } i \right\}
+\]
+The time needed for team \(i\) to complete its investigations is
+\[\sum_{j=1}^N t_{ij} x_{ij} + \sum_{j_1=1}^N \sum_{j_2=1}^N d_{j_1 j_2} (x_{i j_1} \land x_{i j_2}) \implies \sum_{j_1,j_2=1; j_1<j_2}^{N} d_{j_1 j_2} \cdot y_{i j_1 j_2}\]
+
+
+
 
 \end{document}
