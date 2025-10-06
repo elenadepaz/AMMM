@@ -1,0 +1,295 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{nicematrix}
+\usepackage{eurosym} % para el euro
+\setlength{\parindent}{0pt}
+\title{Integer Linear Programming\\Algorithmic Methods for Mathematical Models}
+\author{Elena de Paz Obiols}
+\date{\today}
+
+\begin{document}
+
+
+\maketitle
+
+\section*{Problem 1: Food Production Optimization}
+
+\subsection*{Problem Statement}
+
+A food is manufactured by refining raw oils and blending them together. The raw oils come in two categories:
+
+\textbf{Vegetable oil:} VEG 1, VEG 2
+
+\textbf{Non-vegetable oil:} NON 1, NON 2, NON 3
+
+Vegetable oils and non-vegetable oils require different production lines for refining. It is not possible to refine more than 200 tons of vegetable oil and more than 250 tons of non-vegetable oils. There is no loss of weight in the refining process and the cost of refining may be ignored.
+
+There is a technological restriction of hardness in the final product. In the units in which hardness is measured, this must lie between 3 and 6. We assume the hardness of final product is the weighted average of hardness of the raw oils.
+
+\textbf{Data:}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+& VEG 1 & VEG 2 & NON 1 & NON 2 & NON 3 \\
+\hline
+Hardness & 8.8 & 6.1 & 2.0 & 4.2 & 5.0 \\
+\hline
+Cost (\euro/ton) & 110 & 120 & 130 & 110 & 115 \\
+\hline
+\end{tabular}
+\end{center}
+
+The final product sells at 150{\euro} per ton.
+
+\textbf{Additional conditions:}
+\begin{itemize}
+    \item The food should be made up of at least three oils.
+    \item If an oil is used then at least 20 tons must be used.
+    \item If either of VEG 1 or VEG 2 is used then NON 3 must also be used.
+\end{itemize}
+
+\textbf{Objective:} What manufacturing policy should the company pursue in order to maximize profit? Formulate the problem as an MIP.
+
+\subsection*{Part (a): Basic LP Formulation}
+
+\textbf{Decision variables:}
+\begin{align}
+TVEG_1, TVEG_2 &= \text{tons of vegetable oils VEG1, VEG2 used}\\
+TNON_1, TNON_2, TNON_3 &= \text{tons of non-vegetable oils NON1, NON2, NON3 used}\\
+PROD &= TVEG_1 + TVEG_2 + TNON_1 + TNON_2 + TNON_3 \text{ (total production)}
+\end{align}
+
+\textbf{Objective function:}
+\begin{align}
+\text{Maximize } Z = &150 \cdot PROD - 110 \cdot TVEG_1 - 120 \cdot TVEG_2 \\
+&- 130 \cdot TNON_1 - 110 \cdot TNON_2 - 115 \cdot TNON_3
+\end{align}
+
+\textbf{Basic constraints:}
+\begin{align}
+&\text{Vegetable oil refining capacity: } TVEG_1 + TVEG_2 \leq 200\\
+&\text{Non-vegetable oil refining capacity: } TNON_1 + TNON_2 + TNON_3 \leq 250\\
+&\text{Minimum hardness: }\\
+&\qquad \frac{8.8 \cdot TVEG_1 + 6.1 \cdot TVEG_2 + 2.0 \cdot TNON_1 + 4.2 \cdot TNON_2 + 5.0 \cdot TNON_3}{PROD} \geq 3\\
+&\text{Maximum hardness: }\\
+&\qquad \frac{8.8 \cdot TVEG_1 + 6.1 \cdot TVEG_2 + 2.0 \cdot TNON_1 + 4.2 \cdot TNON_2 + 5.0 \cdot TNON_3}{PROD} \leq 6\\
+&\text{Total production definition: }\\
+&\qquad PROD = TVEG_1 + TVEG_2 + TNON_1 + TNON_2 + TNON_3\\
+&TVEG_1, TVEG_2, TNON_1, TNON_2, TNON_3 \geq 0
+\end{align}
+
+\subsection*{Part (b): MIP Formulation with Additional Conditions}
+
+\textbf{Additional binary variables:}
+\begin{align}
+UVEG_1, UVEG_2 &= \begin{cases} 
+1 & \text{if vegetable oil VEG1, VEG2 is used} \\
+0 & \text{otherwise}
+\end{cases}\\
+UNON_1, UNON_2, UNON_3 &= \begin{cases} 
+1 & \text{if non-vegetable oil NON1, NON2, NON3 is used} \\
+0 & \text{otherwise}
+\end{cases}
+\end{align}
+
+\textbf{Additional constraints for extra conditions:}
+\begin{align}
+&\text{At least 3 oils: } UVEG_1 + UVEG_2 + UNON_1 + UNON_2 + UNON_3 \geq 3\\
+&\text{Minimum usage per oil: }\\
+&\qquad TVEG_1 \geq 20 \cdot UVEG_1, \quad TVEG_2 \geq 20 \cdot UVEG_2\\
+&\qquad TNON_1 \geq 20 \cdot UNON_1, \quad TNON_2 \geq 20 \cdot UNON_2, \quad TNON_3 \geq 20 \cdot UNON_3\\
+&\text{Maximum usage per oil: }\\
+&\qquad TVEG_1 \leq M \cdot UVEG_1, \quad TVEG_2 \leq M \cdot UVEG_2\\
+&\qquad TNON_1 \leq M \cdot UNON_1, \quad TNON_2 \leq M \cdot UNON_2, \quad TNON_3 \leq M \cdot UNON_3\\
+&\text{VEG→NON3 implication: } UVEG_1 + UVEG_2 \leq 2 \cdot UNON_3\\
+&UVEG_1, UVEG_2, UNON_1, UNON_2, UNON_3 \in \{0,1\}
+\end{align}
+
+
+
+\subsection*{Binary Variable Transformations}
+
+\textbf{How to find the transformations for binary variables?}
+
+Let $b$ be a binary variable and $f(x)$ a linear expression.
+
+\textbf{Case 1:} We want to express with linear inequalities that ``if $b=0$ then $f(x) \leq 0$'':
+
+Let $U$ be an upper bound for the value of $f(x)$ over all feasible solutions. 
+Then, for any feasible solution, the following constraint holds:
+\[f(x) \leq U \cdot b\]
+If $b=0$, then $f(x) \leq 0$. If $b=1$, then $f(x) \leq U$, which is always true.
+
+\textbf{Case 2:} We want to express with linear inequalities that ``if $b=1$ then $f(x) \geq 0$'':
+
+Let $L$ be a lower bound for the value of $f(x)$ over all feasible solutions.
+Then, for any feasible solution, the following constraint holds:
+\[f(x) \geq L \cdot (1-b)\]
+If $b=1$, then $f(x) \geq 0$. If $b=0$, then $f(x) \geq L$, which is always true.
+\\
+
+In case we have ``if $b=0$ then $f(x) \geq k$'':
+We can transform our function by defining a new function $f'(x) = f(x) - k$. Then, we can apply the same logic as in Case 2:
+Let $L'$ be a lower bound for the value of $f'(x)$ over all feasible solutions.
+Then, for any feasible solution, the following constraint holds:
+\[f'(x) \geq L' \cdot (1-b)\]
+Which can be rewritten as:
+\[f(x) - k \geq L' \cdot (1-b)\]
+or equivalently:
+\[f(x) \geq k + L' \cdot (1-b)\]
+
+\newpage
+
+\section*{Problem 2: Sudoku}
+
+Given the following Sudoku puzzle,
+
+\begin{center}
+\begin{NiceTabular}{|>{\centering\arraybackslash}m{0.35em}|>{\centering\arraybackslash}m{0.35em}|>{\centering\arraybackslash}m{0.35em}|!{\vrule width 1.2pt}>{\centering\arraybackslash}m{0.35em}|>{\centering\arraybackslash}m{0.35em}|>{\centering\arraybackslash}m{0.35em}|!{\vrule width 1.2pt}>{\centering\arraybackslash}m{0.35em}|>{\centering\arraybackslash}m{0.35em}|>{\centering\arraybackslash}m{0.35em}|}
+\hline
+5 & 3 &   &   & 7 &   &   &   &   \\
+\hline
+6 &   &   & 1 & 9 & 5 &   &   &   \\
+\hline
+  & 9 & 8 &   &   &   &   & 6 &   \\
+\hline
+8 &   &   &   & 6 &   &   &   & 3 \\
+\hline
+4 &   &   & 8 &   & 3 &   &   & 1 \\
+\hline
+7 &   &   &   & 2 &   &   &   & 6 \\
+\hline
+  & 6 &   &   &   &   & 2 & 8 &   \\
+\hline
+  &   &   & 4 & 1 & 9 &   &   & 5 \\
+\hline
+  &   &   &   & 8 &   &   & 7 & 9 \\
+\hline
+\end{NiceTabular}
+\end{center}
+
+formulate the problem of completing it as a MIP.
+\subsection*{MIP Formulation}
+
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{ijk}\): binary variable that is 1 if the cell in row \(i\) and column \(j\) contains the number \(k\), and 0 otherwise.\\
+  Where \(i, j, k \in \{1, 2, \ldots, 9\}\).
+\end{itemize}
+
+\textbf{Objective function:}
+There is no objective function. To cost the problem as a MIP, we can take arbitrarily any function, for example: we can minimize 0.\\
+
+\textbf{Constraints:}
+\begin{enumerate}
+  \item At each row, each value appears exactly once:
+  \[
+  \sum_{i=1}^{9} x_{ijk} = 1 \quad \forall j, k \in \{1, \ldots, 9\}
+  \]
+  \item At each column, each value appears exactly once:
+  \[
+  \sum_{j=1}^{9} x_{ijk} = 1 \quad \forall i, k \in \{1, \ldots, 9\}
+  \]
+  \item In each 3x3 subsquare, each value appears exactly once:\\
+
+  Let's us identify each of the subsquares with the set of coordinates if its cells:
+  \begin{itemize}
+    \item $\mathbf{S_{11}} = \{(1,1), (1,2), (1,3), (2,1), (2,2), (2,3), (3,1), (3,2), (3,3)\}$ 
+  \end{itemize}
+
+  \[
+    \begin{bmatrix}
+      S_{11} & S_{12} & S_{13} \\
+      S_{21} & S_{22} & S_{23} \\
+      S_{31} & S_{32} & S_{33} \\
+    \end{bmatrix}
+  \]
+
+  For each subsquare S, for all values k:
+  \[\sum_{(i,j) \in S} x_{ijk} = 1 \quad \forall k \in \{1, \ldots, 9\}\]
+
+  \item Fixed cells are respected. \\
+  For each fixed cell (i,j) with value k:
+  \[x_{ijk} = 1\]
+
+  \item At each cell (i,j), there is exactly one value:
+  \[\sum_{k=1}^{9} x_{ijk} = 1 \quad \forall i, j \in \{1, \ldots, 9\}\]
+
+\end{enumerate}
+
+\newpage
+
+\section*{Problem 3: Twenty-Seven Cells Arrangement}
+
+\subsection*{Problem Statement}
+Twenty-seven cells are arranged in a three-dimensional 3 × 3 × 3 cube as shown below. 
+
+\begin{center}
+\includegraphics[width=0.4\textwidth]{rubik_cube.png}
+\end{center}
+
+Three cells are regarded as lying in the same line if they are on the same horizontal or vertical line or the same diagonal. Diagonals exist on each horizontal and vertical section and connecting opposite vertices of the cube. (There are 49 lines altogether.)
+
+Given 13 white balls and 14 black balls, arrange them, one to a cell, so as to minimise the number of lines with balls all of one colour.
+
+\subsection*{MIP Formulation}
+
+Let's identify each of the three cells in the cube with a triplet \((i,j,k)\) where \(i,j,k \in \{0,1,2\}\).\\
+Moreover, let's identify a line with the set of coordinates of its cells.\\
+
+\begin{center}
+\includegraphics[width=0.3\textwidth]{rubik_con_ejes.png}
+\end{center}
+
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{ijk}\) = the ball at cell \((i,j,k)\) is white (1) or black (0).\\
+  Where \(i, j, k \in \{0, 1, 2\}\). (of type binary)
+  \item \(y_l\) = the ball in line \(l\) are all of the same color (1) or not (0).\\
+  Where \(l \in \{1, 2, \ldots, 49\}\) (the 49 lines in total). (of type binary) 
+\end{itemize}
+
+\textbf{Objective function:}
+Minimize the number of lines with balls all of one colour:
+\[\text{minimize } \sum_{l=1}^{49} y_l\]
+
+\textbf{Constraints:}
+
+\begin{enumerate}
+  \item There are 13 white balls and 14 black balls:
+  \begin{align}
+  \boxed{\sum_{(i,j,k) \in \text{cells}} x_{ijk} = 13} \quad \text{and} \quad 
+  \boxed{\sum_{(i,j,k) \in \text{cells}} (1 - x_{ijk}) = 14}
+  \end{align}
+  \item If all balls in a line \(l\) have the same colour, then \(y_l = 1\).\\
+  Let \(l\) be the line consisting of the cells \((i_0,j_0,k_0), (i_1,j_1,k_1), (i_2,j_2,k_2)\).
+  Let's consider two cases:
+  \begin{enumerate}
+    \item If all balls in line \(l\) are \textbf{white} , then \(y_l=1\) :
+      \[x_{i_0 j_0 k_0} \land x_{i_1 j_1 k_1} \land x_{i_2 j_2 k_2} \Rightarrow y_l\]
+      \[\lnot (x_{i_0 j_0 k_0} \land x_{i_1 j_1 k_1} \land x_{i_2 j_2 k_2}) \lor y_l \quad \text{(by implication law)}\]
+
+      \textcolor{gray}{If \(a_1, a_2, \dots, a_n, b_1, b_2, \dots, b_m\) are binary variables, then:
+        \[
+          \lnot (a_1 \land a_2 \land \dots \land a_n) \lor (b_1 \land b_2 \land \dots \land b_m) \Leftrightarrow \sum_{i=1}^{n} (1 - a_i) + \sum_{j=1}^{m} b_j \geq 1
+        \]}
+      Therefore, we can express our constraint as:
+      \[\boxed{(1 - x_{i_0 j_0 k_0}) + (1 - x_{i_1 j_1 k_1}) + (1 - x_{i_2 j_2 k_2}) + y_l \geq 1}\]
+    
+      \item If all balls in line \(l\) are \textbf{black} , then \(y_l=1\) :
+      \[(1 - x_{i_0 j_0 k_0}) \land (1 - x_{i_1 j_1 k_1}) \land (1 - x_{i_2 j_2 k_2}) \Rightarrow y_l\]
+      \[
+        \lnot ((1 - x_{i_0 j_0 k_0}) \land (1 - x_{i_1 j_1 k_1}) \land (1 - x_{i_2 j_2 k_2})) \lor y_l
+      \]
+      Applying the same reasoning as in the previous case, we can express our constraint as:
+      \[\boxed{x_{i_0 j_0 k_0} + x_{i_1 j_1 k_1} + x_{i_2 j_2 k_2} + y_l \geq 1}\]
+  \end{enumerate}
+\end{enumerate}
+
+\end{document}

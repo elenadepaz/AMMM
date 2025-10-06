@@ -1,0 +1,248 @@
+\documentclass{article}
+% PREÁMBULO
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+% \usepackage{minted}         % codis pyhton (requires shell-escape)
+\usepackage{fancyhdr}
+\usepackage{amssymb}
+\usepackage[catalan]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath} % for math environments and operations
+\usepackage{bm}      % for bold symbols in math mode
+\pagestyle{fancy}
+\fancyhead{} % Borra el encabezado por defecto
+\fancyhead[R]{\text{Elena de Paz}}
+\fancyhead[C]{Linear Programs}
+\fancyfoot{} % Borra el pie por defecto
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{mygray}{gray}{0.95}
+\setlength{\parindent}{0pt}  % elimina la sangría al inicio de cada párrafo
+
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  breaklines=true,
+  frame=single
+}
+% CUERPO
+
+
+
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{7cm}
+{\scshape\Huge Linear Programs \par}
+\vspace{1cm}
+{\scshape\Large Lab Session 1 \par}
+\vspace{1cm}
+{\itshape\Large Algorithmic Methods for Mathematical Models (AMMM) \par}
+\vspace{8cm}
+{\Large Elena de Paz Obiols \par}
+{\Large \today \par}
+\end{titlepage}
+\vspace*{0.5cm}
+
+\tableofcontents
+\newpage
+\section{Problem statement}
+
+The P1 problem can be formally stated as follows:
+
+Given:
+\begin{itemize}
+    \item The set $T$ of tasks. For each task $t$ the amount of processing resources requested $r_t$ is specified.
+    \item The set $C$ of computers. For each computer $c$ the available processing capacity $r_c$ is specified.
+\end{itemize}
+
+Find the assignment of tasks to computers subject to the following constraints:
+\begin{itemize}
+    \item Each task is assigned to some computers so that the entire requested processing load is served. Note that this means that a single task can consume processing capacity of several computers.
+    \item The processing capacity of each computer cannot be exceeded.
+\end{itemize}
+
+with the objective to minimize the load of the highest loaded computer.
+
+
+\subsection*{LP formulation}
+The P1 problem can be modeled as a Linear Program. To this end, the following
+sets and parameters are defined:
+\begin{itemize}
+    \item $T$: Set of tasks, index $t$.
+    \item $C$: Set of computers, index $c$.
+    \item $r_t$: Resources requested by task $t$.
+    \item $r_c$: Available capacity of computer $c$.
+\end{itemize}
+
+The following decision variables are also defined:
+\begin{itemize}
+    \item $x_{tc}$: positive real with the ratio of resources requested by task $t$ that are served from computer $c$.
+    \item $z$: positive real with the load of the highest loaded computer.
+\end{itemize}
+
+The objective function is to minimize the load of the highest loaded computer:
+\begin{equation}
+z = \max_{c \in C} \left\{ \frac{1}{r_c} \sum_{t \in T} r_t \cdot x_{tc} \right\} \tag{1}
+\end{equation}
+
+Finally, the LP model for the P1 problem is as follows:
+
+\begin{align}
+\text{minimize} \quad & z \tag{2}
+\end{align}
+
+subject to:
+\begin{align}
+\sum_{c \in C} x_{tc} &= 1 && \forall t \in T \tag{3} \\
+\sum_{t \in T} r_t \cdot x_{tc} &\leq r_c && \forall c \in C \tag{4} \\
+z \geq \frac{1}{r_c} \cdot \sum_{t \in T} r_t \cdot & x_{tc} && \forall c \in C \tag{5}
+\end{align}
+\newpage
+\section{Tasks}
+
+\textbf{a) Describe in plain natural language the objective function and the constraints in the P1 model (equations (2)-(5)).}\\
+
+The objective function (2) aims to minimize the load of the highest loaded computer, denoted as \( z \). This means we want to find a way to assign tasks to computers such that the maximum load on any computer is as low as possible.\\
+
+Constraint (3) ensures that each task is fully assigned to the available computers. In other words, the total resources requested by a task must be completely satisfied by the computers it is assigned to.\\
+
+Constraint (4) imposes a limit on the total resources that can be allocated to each computer. The sum of the resources assigned to a computer from all tasks cannot exceed its available capacity.\\
+
+Constraint (5) directly relates to the objective function by stating that \( z \) must be greater than or equal to the normalized load of each computer. This ensures that \( z \) accurately reflects the load of the highest loaded computer.\\
+
+\textbf{b) Explain how equation (1) is implemented in the model P1. Specifically, why z is guaranteed to be equal to the load of the highest loaded computer?}\\
+
+
+Equation (1) is implemented in the third constraint of $P1$, equation (5). We impose that for all computers \( c \in C \), \( z \) must be greater than or equal to \( \left\{ \frac{1}{r_c} \sum_{t \in T} r_t \cdot x_{tc} \right\} \), which is the definition of the maximum.\\
+
+This means that \( z \) is constrained to be at least as large as the load of every computer. Since the objective function (2) is to minimize \( z \), the optimal solution will push \( z \) down to the smallest possible value that still satisfies all constraints.\\
+
+
+\textbf{c) Implement the P1 model in OPL following the steps in section 3, and solve it using CPLEX with the provided input data. In the report, write the optimal solution and its optimal value.}\\
+
+\lstinputlisting[
+    language=Java,     
+    caption={Simple implementation in OPL},
+    label={lst:modfile}
+]{P1tex.mod}
+
+\vspace{0.5cm}
+
+The optimal solution was obtained with a total system load of $1238.47$ units. 
+\\
+
+The objective value at this optimum is $0.723773179127243$.
+\\
+
+The individual CPU loads at the optimal solution are:
+\begin{itemize}
+    \item CPU 1: 72.38\%
+    \item CPU 2: 72.38\%
+    \item CPU 3: 72.38\%
+\end{itemize}
+
+This indicates that the load is evenly distributed among all three CPUs, achieving the optimal balance according to the objective function.
+\\
+
+\textbf{d) Write a pre-processing block to check whether computers have enough total capacity to serve the resources requested by all the tasks. You can use the instruction stop() to interrupt the execution if the check fails.}\\
+
+The following OPL pre-processing block checks that the total CPU capacity is sufficient to cover the total task load. If the capacity is insufficient, the execution is stopped using the \texttt{stop()} instruction:
+\\
+
+\begin{lstlisting}[language=Java, frame=single, xleftmargin=0pt]
+execute {
+    var totalLoad = 0;
+    for (var t=1; t<=nTasks; t++)
+        totalLoad += rt[t];
+    writeln('Total load requested: ', totalLoad);
+
+    var totalCapacity = 0;
+    for (var c=1; c<=nCPUs; c++)
+        totalCapacity += rc[c];
+    writeln('Total CPU capacity: ', totalCapacity);
+
+    if (totalCapacity < totalLoad) {
+        writeln('ERROR: Total CPU capacity is insufficient to serve all tasks!');
+        stop();
+    } else {
+        writeln('Pre-check passed: CPUs have enough capacity.');
+    }
+};
+\end{lstlisting}
+
+\medskip
+
+\textbf{Output:}
+
+\begin{verbatim}
+Total load requested: 1238.47
+Total CPU capacity: 1711.13
+Pre-check passed: CPUs have enough capacity.
+\end{verbatim}
+
+
+\textbf{e) Implement the P1 model in OPL following the steps in section 4, and solve it using CPLEX with the provided input data. In the report, write the optimal solution and its optimal value.}\\
+
+\lstinputlisting[
+    language=Java,     
+    caption={Advanced implementation in OPL},
+    label={lst:modfile}
+]{P1b.mod}
+
+\vspace{0.5cm}
+
+\textbf{Output:}
+
+\begin{verbatim}
+Total load requested: 1238.47
+Total CPU capacity: 1711.13
+Pre-check passed: CPUs have enough capacity.
+Max load 72.377317913%
+CPU 1 loaded at 72.377317913%
+CPU 2 loaded at 72.377317913%
+CPU 3 loaded at 72.377317913%
+\end{verbatim}
+
+\medskip
+
+\textbf{Optimal Solution:}
+
+\begin{itemize}
+    \item CPU 1 load: 72.38\%
+    \item CPU 2 load: 72.38\%
+    \item CPU 3 load: 72.38\%
+\end{itemize}
+
+\textbf{Optimal Value of the Objective Function:} 
+\[
+z^* = 0.723773179127243
+\]
+
+This indicates that the load is evenly distributed among all three CPUs, achieving the optimal balance according to the objective function.
+\\
+
+\textbf{f) Analyze the optimal solution obtained in e): Would it be possible to reduce the capacity of all computers uniformly by the same percentage (but keeping the same resource requests), and still get a feasible problem? If so, which is the percentage the capacities can be reduced?}\\
+
+Analyzing the optimal solution, we observe that each CPU is already loaded at 72.38\% of its capacity. This means that the system is operating with exactly this percentage of its total available resources.
+
+If we were to reduce the capacity of all computers uniformly, the relative load percentage would increase proportionally. Since we're already operating at a balanced load of 72.38\% across all CPUs, we can reduce each CPU's capacity by exactly:
+
+\[ 1 - 0.7238 \approx 0.2762 \]
+
+This means the capacities can be reduced by approximately 27.62\% while maintaining feasibility. Any further reduction would make the problem infeasible, as the required task load would exceed the available capacity.
+
+This reduction percentage matches our optimal objective value of $z^* = 0.723773179127243$, confirming that the system is optimally balanced at this load level.
+
+\end{document}
