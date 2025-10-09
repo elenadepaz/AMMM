@@ -1,7 +1,9 @@
 \documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
-\usepackage{amsmath, amssymb}
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{tikz}
+\usetikzlibrary{patterns}
 \usepackage{geometry}
 \geometry{margin=2.5cm}
 \usepackage{hyperref}
@@ -342,7 +344,7 @@ An outbreak of an infectious disease has been observed in a set $N$ of locations
 
   \item z has its intended meaning:
   For every team \(i\), the time needed for team \(i\) to complete its investigations must be less than or equal to \(z\):
-  \[\boxed{\sum_{j=1}^N t_{ij} x_{ij} + \sum_{j_1,j_2=1; j_1<j_2}^{N} d_{j_1 j_2} \cdot y_{i j_1 j_2} \leq z \quad \forall 1 \leq i \leq M}\]
+  \[\boxed{\sum_{j=1}^N t_{ij} x_{ij} + \sum_{\substack{j_1,j_2=1 \frac{}{} j_1<j_2}}^{N} d_{j_1 j_2} \cdot y_{i j_1 j_2} \leq z \quad \forall 1 \leq i \leq M}\]
 
 \end{enumerate}
 
@@ -352,7 +354,7 @@ Minimize the time needed to complete the investigation of all locations.\\
   \min \max _{1 \leq i \leq M} \left\{ \text{time needed for team } i \right\}
 \]
 The time needed for team \(i\) to complete its investigations is
-\[\sum_{j=1}^N t_{ij} x_{ij} + \sum_{j_1=1}^N \sum_{j_2=1}^N d_{j_1 j_2} (x_{i j_1} \land x_{i j_2}) \implies \sum_{j_1,j_2=1; j_1<j_2}^{N} d_{j_1 j_2} \cdot y_{i j_1 j_2}\]
+\[\sum_{j=1}^N t_{ij} x_{ij} + \sum_{j_1=1}^N \sum_{j_2=1}^N d_{j_1 j_2} (x_{i j_1} \wedge x_{i j_2}) \implies \sum_{\substack{j_1,j_2=1 \\ j_1<j_2}}^{N} d_{j_1 j_2} \cdot y_{i j_1 j_2}\]
 
 
 \section*{Problem 5: Graph Coloring}
@@ -464,5 +466,184 @@ Minimize the number of colors used:
   \textbf{Observation}: This constraint was not in our first formulation because it was implicit in the definition of the variables \(c_v\).
 
 \end{enumerate}
+
+\newpage
+
+\section*{Problem 6: Medical Drug Acquisition Planning}
+
+\subsection*{Problem Statement}
+A medical company is attempting to acquire a certain drug from a set M of suppliers. The company requires $d_t$ units of this drug in month $t$, for $t = 1, \ldots, T$, which are entirely consumed. Purchasing one unit of the drug from supplier $i \in M$ during time period $t \in \{1, \ldots, T\}$ costs $c_{it}$ (in \euro). However, in order to purchase drugs from supplier $i \in M$, at any time period, the company must purchase a minimum of $\ell_i$ units during that time period. Fortunately, if it turns out that there is more drug than required, the company can store at most $h$ units from one period to the next. If even then the company finds itself with too many units of the drug, it can simply throw away the extra supply. The goal is to minimize the cost required to purchase the drug for time periods $1, \ldots, T$.
+
+\subsection*{MIP Formulation}
+
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{ijt}\) = number of units of drug purchased from supplier \(i\) at time period \(t\) (for all \(1 \leq i \leq M \text{ and }  1 \leq t \leq T\)) (of type integer non negative)
+  \item \(y_t\) = number of units of drug stored at the end of time period \(t\) (for all \(1 \leq t \leq T-1\)) (of type integer non negative) (for convinience, we define \(y_0 = 0\)) 
+  \item \(z_{it}\) = 1 if we purchase drugs from supplier \(i\) at time period \(t\), 0 otherwise (for all \(1 \leq i \leq M \text{ and }  1 \leq t \leq T\)) (of type binary) 
+\end{itemize}
+
+\textbf{Objective function:} 
+Minimize costs: 
+\[
+  \min \sum_{\substack{1 \leq i \leq M \\ 1 \leq t \leq T}} c_{it} \cdot x_{it}
+\]
+
+\textbf{Constraints:} 
+\begin{enumerate}
+  \item At every period \(t\), the demand \(d_t\) must be satisfied:
+    \begin{align*}
+      &\text{For period } t=1: & \sum_{i=1}^M x_{i1} &\geq d_1 \\
+      &\text{For period } t=2: & \sum_{i=1}^M x_{i2} + y_{1} &\geq d_2 + y_{2}\\
+      &\vdotswithin{=} \\
+      &\text{For period } t=T: & \sum_{i=1}^M x_{iT} + y_{T-1} &\geq d_T + y_{T}
+    \end{align*}
+
+  We can express our constraints as:
+  \[\boxed{\sum_{i=1}^M x_{it} + y_{t-1} \geq d_t + y_t \quad \forall 1 \leq t \leq T}\]
+
+  \textit{Explanation of the constraint}: the total amount of drug available at period \(t\) (the amount purchased at period \(t\) plus the amount stored from the previous period) must be greater than or equal to the total amount of drug needed at period \(t\) (the amount required at period \(t\) plus the amount stored for the next period).
+
+  \item The storage capacity is limited:
+  \[\boxed{y_t \leq h \quad \forall 1 \leq t \leq T}\]
+
+  \item The purchase of drugs respect the minimum order quantity:
+  For all \(1 \leq i \leq M\) and \(1 \leq t \leq T\):
+
+  'If we buy drugs from supplier \(i\) at time period \(t\), then we must buy at least \(\ell_i\) units' can be expressed as:
+  \[
+    z_{it} = 0 \rightarrow x_{it} \leq 0 \quad \text{and} \quad z_{it} = 1 \rightarrow x_{it} \geq \ell_i
+  \]
+
+  Applying the transformations for binary variables, we get:
+  \[
+    \boxed{x_{it} \leq U_{iz} \cdot z_{it}} \quad \text{and} \quad \boxed{x_{it} \geq \ell_i \cdot z_{it}} \quad \forall 1 \leq i \leq M, 1 \leq t \leq T
+  \]
+  Where \(U_{iz}\) is an upper bound for the value of \(x_{it}\) over all feasible solutions. A possible value for \(U_{iz}\) is \(\sum_{t=1}^T d_t\).
+
+
+\end{enumerate}
+
+
+\newpage
+
+\section*{Problem 7: Nurse Scheduling Problem}
+
+\subsection*{Problem Statement}
+A nurse is assigned a set $N$ of patients. For each patient $i \in N$, the nurse must spend $p_i$ minutes examining the patient. The nurse must then wait somewhere between $\ell_i$ and $u_i$ minutes before checking up on the patient, which requires $q_i$ minutes. The nurse, of course, cannot be in two places at the same time, although we will assume for simplicity that the travel time to walk from one patient's room to another is zero. The objective is to minimize the total amount of time required to tend to all patients.
+
+\subsection*{MIP Formulation}
+
+\textbf{Decision variables:}
+
+\begin{itemize}
+  \item \(f_i\) = time the first visit to patient \(i\) starts (for all \(i \in N\)) (of type real non negative)
+  \item \(s_i\) = time the second visit to patient \(i\) starts (for all \(i \in N\)) (of type real non negative)
+  
+  \item \(ff_{ij}\) = 1st visit to patient \(i\) is before 1st visit to patient \(j\), (for all \(i, j \in N, i < j\)) (of type binary) 
+  \item \(fs_{ij}\) = 1st visit to patient \(i\) is before 2nd visit to patient \(j\), (for all \(i, j \in N\)) (of type binary)
+  \item \(sf_{ij}\) = 2nd visit to patient \(i\) is before 1st visit to patient \(j\), (for all \(i, j \in N\)) (of type binary)
+  \item \(ss_{ij}\) = 2nd visit to patient \(i\) is before 2nd visit to patient \(j\), (for all \(i, j \in N, i < j\)) (of type binary)
+\end{itemize}
+
+\textbf{Constraints:} 
+\begin{enumerate}
+  \item The rest between visits is respected:
+    \[\boxed{\ell_i \leq s_i - (f_i + p_i) \leq u_i \quad \forall i \in N}\]
+
+    \begin{center}
+      \begin{tikzpicture}[scale=0.8]
+        % Timeline
+        \draw[->, thick] (0,0) -- (14,0);
+        \foreach \x in {0,1,...,13}
+        \draw (\x,0.1) -- (\x,-0.1) node[below] {\x};
+        \node[below] at (14,0) {time};
+        
+        % First visit
+        \draw[fill=blue!30] (2,0.5) rectangle node {First visit} (5,1.5);
+        
+        % Rest period
+        \draw[pattern=north east lines, pattern color=gray] (5,0.5) rectangle (9,1.5);
+        \draw[<->] (5,1.7) -- node[above] {Rest period ($\ell_i$ to $u_i$ minutes)} (9,1.7);
+        
+        % Second visit
+        \draw[fill=green!30] (9,0.5) rectangle node {Second visit} (12.5,1.5);
+        
+        % Labels
+        \node[below] at (2,-0.7) {$f_i$};
+        \node[below] at (5,-0.7) {$f_i + p_i$};
+        \node[below] at (9,-0.7) {$s_i$};
+        \node[below] at (11.5,-0.7) {$s_i + q_i$};
+      \end{tikzpicture}
+      \end{center}
+
+    \textbf{Explanation:}
+    \begin{itemize}
+      \item $f_i$ = Time when first visit to patient $i$ starts
+      \item $p_i$ = Duration of first visit (examination)
+      \item $f_i + p_i$ = Time when first visit ends
+      \item $s_i$ = Time when second visit (check-up) starts
+      \item $s_i - (f_i + p_i)$ = Rest time between visits
+      \item This rest time must be between $\ell_i$ and $u_i$ minutes
+    \end{itemize}
+
+    \item There are no overlapping visits:
+    
+    For each pair of patients \(i, j \in N\) with \(i < j\), we have four possible cases:
+    \begin{enumerate}
+      \item First visit to patient \(i\) ends before first visit to patient \(j\) starts:
+      % \[f_i + p_i \leq f_j\]
+      \item First visit to patient \(j\) ends before first visit to patient \(i\) starts:
+      % \[f_j + p_j \leq f_i\]
+      \item Second visit to patient \(i\) ends before second visit to patient \(j\) starts:
+      % \[s_i + q_i \leq s_j\]
+      \item Second visit to patient \(j\) ends before second visit to patient \(i\) starts:
+      % \[s_j + q_j \leq s_i\]
+    \end{enumerate}
+
+    We will define four binary variables to represent these cases. See in the decision variables section.
+    
+    Therefore, we can express our constraints as:
+
+    \[
+      ff_{ij} + ff_{ji} = 1 \quad \forall i, j \in N, i < j
+    \]
+    \[
+      ss_{ij} + ss_{ji} = 1 \quad \forall i, j \in N, i < j
+    \]
+    \[
+      fs_{ij} + sf_{ji} = 1 \quad \forall i, j \in N, i \neq j
+    \]
+
+    \item The binary variables are linked to the time variables:
+    \begin{enumerate}
+      \item \(ff_{ij} = 1 \rightarrow f_i + p_i \leq f_j\):
+      \[f_i + p_i \leq f_j + U \cdot (1 - ff_{ij})\]
+      Where \(U\) is an upper bound for the value of \(f_j - (f_i + p_i)\) over all feasible solutions. A possible value for \(U\) is \(\sum_{i \in N} (p_i + u_i + q_i)\).
+
+      \item \(ss_{ij} = 1 \rightarrow s_i + q_i \leq s_j\):
+      \[s_i + q_i \leq s_j + U \cdot (1 - ss_{ij})\]
+      Where \(U\) is an upper bound for the value of \(s_j - (s_i + q_i)\) over all feasible solutions. A possible value for \(U\) is \(\sum_{i \in N} (p_i + u_i + q_i)\).
+
+      \item \(fs_{ij} = 1 \rightarrow f_i + p_i \leq s_j\):
+      \[f_i + p_i \leq s_j + U \cdot (1 - fs_{ij})\]
+      Where \(U\) is an upper bound for the value of \(s_j - (f_i + p_i)\) over all feasible solutions. A possible value for \(U\) is \(\sum_{i \in N} (p_i + u_i + q_i)\).
+
+      \item \(sf_{ij} = 1 \rightarrow s_i + q_i \leq f_j\):
+      \[s_i + q_i \leq f_j + U \cdot (1 - sf_{ij})\]
+      Where \(U\) is an upper bound for the value of \(f_j - (s_i + q_i)\) over all feasible solutions. A possible value for \(U\) is \(\sum_{i \in N} (p_i + u_i + q_i)\).
+    \end{enumerate}
+  
+\end{enumerate}
+
+\textbf{Objective function:} 
+
+Minimize the total time required to assist all patients:
+\[\min \max_{i \in N} (s_i + q_i)\]
+
+We add a new variable \(z\) to represent \(\max_{i \in N} (s_i + q_i)\) and we minimize \(z\):
+\[\min z\] 
+
+\[\text{subject to } s_i + q_i \leq z \quad \forall i \in N\]
 
 \end{document}
