@@ -355,6 +355,114 @@ The time needed for team \(i\) to complete its investigations is
 \[\sum_{j=1}^N t_{ij} x_{ij} + \sum_{j_1=1}^N \sum_{j_2=1}^N d_{j_1 j_2} (x_{i j_1} \land x_{i j_2}) \implies \sum_{j_1,j_2=1; j_1<j_2}^{N} d_{j_1 j_2} \cdot y_{i j_1 j_2}\]
 
 
+\section*{Problem 5: Graph Coloring}
 
+\subsection*{Problem Statement}
+Consider the problem of graph coloring: given a graph $G = (V,E)$, we want to find the minimum number of colors to paint the vertices so that adjacent vertices have different colors. Model this problem as a MIP.
+
+\subsection*{MIP Formulation}
+
+Let's label vertices $1, 2, \dots, n = |V|$.\\
+
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(c_v\) = color assigned to vertex \(v\) (for all \(v \in V\)) (of type integer non negative)
+  \item \(z\) = intuitively, \(\max_{v \in V} c_v\) (of type integer non negative)
+  \item \(z_{uv}\) = 1 if \(c_u < c_v\), 0 if \(c_u > c_v\) (for all \((u,v) \in E\)) (of type binary)
+\end{itemize}
+
+\textbf{Objective function:}
+Minimize the number of colors used:
+\[\min z\]
+
+\textbf{Constraints:}
+\begin{enumerate}
+  \item \(z\) 'behaves' as \(\max_{v \in V} c_v\):
+  \[\boxed{c_v \leq z \quad \forall v \in V}\] 
+  \item Adjacent vertices have different colors:
+  \[\boxed{c_u \neq c_v \quad \forall (u,v) \in E}\]
+  The problem is that this equation is not linear. We can transform it using binary variables:
+  
+  This is the same as saying that either \(c_u < c_v\) or \(c_u > c_v\) \(\implies\) \(c_u +1 \leq c_v \lor c_u \geq c_{v}+1 \)  
+
+  We define a new variable \(z_{uv}\) such that:
+  \[z_{uv} = \begin{cases}
+    1 & \text{if } c_u < c_v \\
+    0 & \text{if } c_u > c_v
+  \end{cases}\]
+
+  We can express our constraint as:
+  \[
+  z_{uv} = 1 \implies c_u + 1 \leq c_v \implies c_v - c_u -1 \geq 0
+  \]
+  \[
+  z_{uv} = 0 \implies c_u \geq c_v + 1 \implies c_u - c_v -1 \geq 0
+  \]
+
+  Applying the transformations for binary variables explained in Problem 1, we get:
+
+  If \(b=0 \longrightarrow f(x) \leq 0 \text{ is equivalent to } \) \(f(x) \leq U \cdot b\), where \(U\) is an upper bound for \(f(x)\).
+
+  If \(b=1 \longrightarrow f(x) \geq 0 \text{ is equivalent to } \) \(f(x) \geq L \cdot (1-b)\), where \(L\) is a lower bound for \(f(x)\).
+
+  \begin{itemize}
+    \item Let's express \(z_{uv}=1 \implies c_{v} - c_u - 1 \geq 0\)
+  We know that \(c_v \geq 1 \implies c_u \leq n \implies -c_u \geq -n\)
+  
+  Therefore, a lower bound is \(L = -n\).
+
+  So, the implication is equivalent to:
+  \[c_v - c_u - 1 \geq -n \cdot (1 - z_{uv})\]
+
+    \item Let's express \(z_{uv}=0 \implies c_u - c_v - 1 \geq 0\)
+  We know that \(c_v \leq n \implies c_u \geq 1 \implies -c_u \leq -1\)
+
+  Therefore, an upper bound is \(U=n\).
+
+  So, the implication is equivalent to:
+  \[c_u - c_v - 1 \leq n \cdot z_{uv}\]
+  \end{itemize}
+
+  Therefore, we can express our constraints as:
+  \[
+  \boxed{c_v - c_u - 1 \geq -n \cdot (1 - z_{uv})} \quad \text{and} \quad \boxed{c_u - c_v - 1 \leq n \cdot z_{uv}} \quad \forall (u,v) \in E
+  \]  
+
+\end{enumerate}
+
+\subsection*{Alternative MIP Formulation}
+
+Another possibility of defining the decision variables is:
+\begin{itemize}
+  \item \(x_{vc}\) = 1 if vertex \(v\) is assigned color \(c\), 0 otherwise (for all \(v \in V\) and \(1 \leq c \leq n\)) (of type binary)
+  \item \(u_k\) = 1 if color \(k\) is used, 0 otherwise (for all \(1 \leq k \leq n\)) (of type binary)
+  \item \(z\) = number of colors used (of type integer non negative) 
+\end{itemize}
+
+\textbf{Objective function:}
+Minimize the number of colors used: 
+\[
+\min z
+\]
+
+\textbf{Constraints:}
+\begin{enumerate}
+  \item Variables are related:
+  For each \(1 \leq v \leq n\) and \(1 \leq k \leq n\):
+  \[x_{vk} \rightarrow u_k \quad \implies \quad \lnot x_{vk} \lor u_k \quad \implies \quad (1 - x_{vk}) + u_k \geq 1 \quad \implies \quad \boxed{u_k \geq x_{vk}}\]
+
+  \item Neighbors are painted with different colors:
+  For each edge \((u,v) \in E\) and \(1 \leq k \leq n\):
+  \[
+    \lnot (x_{uk} \land x_{vk}) \quad \implies \quad (1 - x_{uk}) + (1 - x_{vk}) \geq 1 \quad \implies \quad \boxed{x_{uk} + x_{vk} \leq 1}
+  \]
+
+  \item Each vertex is painted with exactly one color:
+  For each \(1 \leq v \leq n\):
+  \[\boxed{\sum_{k=1}^n x_{vk} = 1}\]
+
+  \textbf{Observation}: This constraint was not in our first formulation because it was implicit in the definition of the variables \(c_v\).
+
+\end{enumerate}
 
 \end{document}
