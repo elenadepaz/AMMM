@@ -1,0 +1,270 @@
+\documentclass{article}
+% PREÁMBULO
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+% \usepackage{minted}         % codis pyhton (requires shell-escape)
+\usepackage{fancyhdr}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath} % for math environments and operations
+\usepackage{bm}      % for bold symbols in math mode
+\pagestyle{fancy}
+\fancyhead{} % Borra el encabezado por defecto
+\fancyhead[R]{\small\begin{tabular}{r}Leidy Vanesa Vidales \\ Elena de Paz\end{tabular}}
+\fancyhead[C]{Mixed Integer Linear Programs --- Lab 3}
+\fancyfoot{} % Borra el pie por defecto
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{mygray}{gray}{0.95}
+\setlength{\parindent}{0pt}  % elimina la sangría al inicio de cada párrafo
+\usepackage{placeins} % \FloatBarrier para forzar que los floats se impriman antes del texto siguiente
+\usepackage{etoolbox}
+\AtEndEnvironment{table}{\FloatBarrier}
+\AtEndEnvironment{figure}{\FloatBarrier}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{multirow}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  breaklines=true,
+  frame=single
+}
+
+\usepackage{tcolorbox}
+
+% CUERPO
+
+
+
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{7cm}
+{\scshape\Huge Mixed Integer Linear Programs \par}
+\vspace{1cm}
+{\scshape\Large Lab Session 3 \par}
+\vspace{1cm}
+{\itshape\Large Algorithmic Methods for Mathematical Models (AMMM) \par}
+\vspace{8cm}
+{\Large Leidy Vanesa Vidales \\ Elena de Paz Obiols \par}
+\vspace*{0.5cm}
+{\Large \today \par}
+\end{titlepage}
+\vspace*{0.5cm}
+
+\tableofcontents
+\newpage
+\section{Problem statement}
+
+The P3 problem can be formally stated as follows:
+Given:
+\begin{itemize}
+\item The set T of tasks. Each task t consists of a set of threads H(t). For each thread h the amount of requested resources rh is specified.
+\item The set C of computers. Each computer c consists of a set of cores K(c). All cores of each computer c have the same capacity rc.
+\end{itemize}
+Find the assignment of tasks to computers and threads to cores subject to the following constraints:
+\begin{itemize}
+\item Each thread is assigned to a single core.
+\item Each task is assigned to a single computer, i.e. all the threads of a task are assigned to cores of the same computer.
+\item The capacity of each core cannot be exceeded.
+\end{itemize}
+with the objective to minimize the highest loaded computer.
+
+\newpage
+\section{Tasks}
+
+\begin{tcolorbox}[colback=gray!10, colframe=gray!50]
+a) Implement the P3 model in OPL and solve it using CPLEX with the following
+data file.
+\vspace{0.2cm}
+\begin{lstlisting}[language=Java, frame=single, xleftmargin=0pt]
+nTasks=4;
+nThreads=8;
+nCPUs=3;
+nCores=9;
+
+rh=[261.27 261.27 560.89 560.89 310.51 310.51 105.8 105.8];
+rc=[505.67 503.68 701.78];
+
+CK=[
+    [1 1 1 0 0 0 0 0 0]
+    [0 0 0 1 1 1 0 0 0]
+    [0 0 0 0 0 0 1 1 1]
+];
+
+TH=[
+    [1 1 0 0 0 0 0 0]
+    [0 0 1 1 0 0 0 0]
+    [0 0 0 0 1 1 0 0]
+    [0 0 0 0 0 0 1 1]
+];
+\end{lstlisting}
+
+Where matrix CK defines the cores belonging to each computer and matrix TH defines the threads belonging to each task.
+NOTE: You will need some preprocessing to obtain the number of threads of each task and the number of cores in each computer.
+
+\end{tcolorbox}
+
+The OPL code for the P3 model is as follows:
+
+\lstinputlisting[
+    language=Java,     
+    caption={P3 model},
+]{P3.mod}
+
+The solution obtained for the provided data file is:
+
+\begin{lstlisting}[language=Java,frame=single]
+z = 0.53283;
+x_hk = [[0 1 0 0 0 0 0 0 0]
+        [1 0 0 0 0 0 0 0 0]
+        [0 0 0 0 0 0 0 1 0]
+        [0 0 0 0 0 0 1 0 0]
+        [0 0 0 0 1 0 0 0 0]
+        [0 0 0 1 0 0 0 0 0]
+        [1 0 0 0 0 0 0 0 0]
+        [1 0 0 0 0 0 0 0 0]];
+x_tc = [[1 1 1]
+        [1 1 1]
+        [1 1 1]
+        [1 1 1]];
+\end{lstlisting}
+
+So, the optimal solution has a maximum load of \textbf{0.53283} , and the assignment of threads to cores and tasks to computers is given by the matrices $x_{hk}$ and $x_{tc}$, respectively.
+
+\begin{tcolorbox}[colback=gray!10, colframe=gray!50]
+b) Generate instances of increasing size with the instance generator script and use the P3 model to solve them.
+\end{tcolorbox}
+
+
+\begin{table}[ht]
+\centering
+\caption{Results for generated instances of increasing size}
+\label{tab:instances}
+\small
+\begin{tabular}{l r r r r c r}
+\hline
+Instance    & nTasks    & nThreads   & nCPUs & nCores   & z*    & Time (s) \\
+\hline
+Instance 1  & 5         & 12        & 3     & 12      & 0,1265    & 0,1490 \\
+Instance 2  & 10        & 34        & 5     & 17      & 0,2709    & 0,2240 \\
+Instance 3  & 25        & 106       & 12    & 51      & 0,2704    & 1,2980 \\
+Instance 4  & 70        & 277       & 30    & 169     & 0,2127    & 235,8990 \\
+Instance 5  & 100       & 387       & 40    & 230     & --        & -- \\
+\hline
+\end{tabular}
+\end{table}
+
+In table~\ref{tab:instances} we can see the results obtained for each instance using the P3 model.
+
+Instance 5 took significantly longer to solve: even after 2 hours and 30 minutes, the computation had not finished, with the current solution around 0.22, still showing a 1.73\% discrepancy from the optimal solution.
+
+In the Annexes, some of the generated instances are presented.
+
+It is clear that as the size of the instances increases, the execution time also increases.
+
+
+
+\begin{tcolorbox}[colback=gray!10, colframe=gray!50]
+c) Modify the P3 model to maximize the number of computers with all their cores empty (P3a).
+\end{tcolorbox}
+We have transformed the z variable to represent the number of computers with all their cores empty, and now is an integer variable instead of a non-negative real one.
+Constraint 4 was modified and the objective now is to maximize z.
+
+\lstinputlisting[
+    language=Java,     
+    caption={P3a model},
+]{P3a.mod}
+
+
+
+The solution obtained for the provided data file in a) is:
+\begin{lstlisting}[language=Java,frame=single]
+z = 8;
+x_hk = [[1 0 0 0 0 0 0 0 0]
+        [0 0 1 0 0 0 0 0 0]
+        [0 0 0 0 0 0 1 0 0]
+        [0 0 0 0 0 0 0 1 0]
+        [0 0 0 0 0 1 0 0 0]
+        [0 0 0 0 1 0 0 0 0]
+        [0 0 0 1 0 0 0 0 0]
+        [0 0 0 0 0 1 0 0 0]];
+x_tc = [[1 0 0]
+        [0 0 1]
+        [0 1 0]
+        [0 1 0]];
+\end{lstlisting}
+So, the optimal solution has \textbf{8} computers with all their cores empty, and the assignment of threads to cores and tasks to computers is given by the matrices $x_{hk}$ and $x_{tc}$, respectively.
+
+
+\begin{tcolorbox}[colback=gray!10, colframe=gray!50]
+d) Compare both models (P3 and P3a) in terms of number of variables, constraints and execution time for the generated instances. Recall that you can tune the egap param to control when cplex stops.
+\end{tcolorbox}
+\begin{table}[ht]
+\centering
+\caption{Comparison between P3 and P3a models}
+\label{tab:comparation}
+\small
+\begin{tabular}{l l r c r}
+% Requires \usepackage{multirow} in the preamble
+\hline
+Instance & Model & \#variables & \#constraints & time \\
+\hline
+\multirow{2}{*}{Given instance} & P3  & 85 (Nneg (real): 1, Binary: 84)  & 50 (Less: 39, Greater: 3, Equal: 8) & 0,1490 s \\
+                                & P3a & 85 (Int: 1, Binary: 84)  & 48 (Less: 39, Greater: 0, Equal: 9) & 0,1480 s \\
+\hline
+\multirow{2}{*}{Instance 1}     & P3  & 160 (Nneg (real): 1, Binary: 159) & 66 & 0,1390 s \\
+                                & P3a & 160 (Int: 1, Binary: 159) & 64 & 0,1350 s \\
+\hline
+\multirow{2}{*}{Instance 2}     & P3  & 629 (Nneg (real): 1, Binary: 628) & 174 & 0,2240 s \\
+                                & P3a & 629 (Int: 1, Binary: 628) & 170 & 0,1440 s \\
+\hline
+\multirow{2}{*}{Instance 3}     & P3  & 5707 (Nneg (real): 1, Binary: 5706) & 1030 & 1,2980 s \\
+                                & P3a & 5707 (Int: 1, Binary: 5706) & 1019 & 1,0670 s \\
+\hline
+\multirow{2}{*}{Instance 4}     & P3  & 48914 (Nneg (real): 1, Binary: 48913) & 7477 & 235,8990 s \\
+                                & P3a & 48914 (Int: 1, Binary: 48913) & 7448 & 39,3910 s \\
+\hline
+
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+In table~\ref{tab:comparation} we can see the comparison between both models for each instance. 
+
+Both models have the same number of variables, but P3a has fewer constraints and generally performs better in terms of execution time.
+As the instances grow larger, the difference in execution time becomes more pronounced, with P3a being significantly faster for larger instances.
+
+
+The models are equal in terms of variables, and similar in execution time, but in terms of constraints P3a decreases the number of constraints by two.
+\newpage
+\section{Annexes}
+In this section, the code for each of the previous exercises is presented.
+
+\subsubsection*{Generated instances for b)}
+
+\lstinputlisting[
+    language=Java,     
+    caption={Instance 1},
+]{instance1.dat}
+
+\lstinputlisting[
+    language=Java,     
+    caption={Instance 2},
+]{instance2.dat}
+
+\bigskip
+Instances 3, 4 and 5 are too large to be included here, but can be provided upon request.
+
+\end{document}

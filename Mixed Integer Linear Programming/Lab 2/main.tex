@@ -1,0 +1,269 @@
+\documentclass{article}
+% PREÁMBULO
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+% \usepackage{minted}         % codis pyhton (requires shell-escape)
+\usepackage{fancyhdr}
+\usepackage{amssymb}
+\usepackage[catalan]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath} % for math environments and operations
+\usepackage{bm}      % for bold symbols in math mode
+\pagestyle{fancy}
+\fancyhead{} % Borra el encabezado por defecto
+\fancyhead[R]{\text{Elena de Paz}}
+\fancyhead[C]{Mixed Integer Linear Programs - Lab 2}
+\fancyfoot{} % Borra el pie por defecto
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{mygray}{gray}{0.95}
+\setlength{\parindent}{0pt}  % elimina la sangría al inicio de cada párrafo
+
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  breaklines=true,
+  frame=single
+}
+% CUERPO
+
+
+
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{7cm}
+{\scshape\Huge Mixed Integer Linear Programs \par}
+\vspace{1cm}
+{\scshape\Large Lab Session 2 \par}
+\vspace{1cm}
+{\itshape\Large Algorithmic Methods for Mathematical Models (AMMM) \par}
+\vspace{8cm}
+{\Large Elena de Paz Obiols \par}
+{\Large \today \par}
+\end{titlepage}
+\vspace*{0.5cm}
+
+\tableofcontents
+\newpage
+\section{Problem statement}
+
+\newpage
+\section{Tasks}
+
+\textbf{a) Implement the P2 model in OPL and solve it using CPLEX (model P2a). To that end, use “boolean” to define binary variables in OPL. Use the input data that were given in the statement of the previous lab session. In the report, write the optimal solution and its optimal value, and indicate the changes you made on the OPL code of the P1 model of the previous lab session.}
+
+\begin{lstlisting}[language=Java, frame=single, xleftmargin=0pt]
+int nTasks=...;
+int nCPUs=...;
+
+range T=1..nTasks;
+range C=1..nCPUs;
+
+float rt[t in T]=...;
+float rc[c in C]=...;
+
+dvar boolean x_tc[t in T, c in C];
+dvar float+ z;
+\end{lstlisting}
+
+The only change in the code is the definition of the variable \(x_{tc}\)  as a boolean variable instead of a continuous one.
+
+
+The optimal objective value is:
+\[
+z^\star = 0.799239077773661
+\]
+The optimal assignment of tasks to computers is as follows:
+\begin{itemize}
+    \item CPU 1: 72.5908201\%
+    \item CPU 2: 61.648268742\%
+    \item CPU 3: 79.923907777\%
+\end{itemize}
+
+\bigskip
+
+\textbf{b) Compare P1 and P2 in terms of the optimal objective value, solving algorithm, solving time, and number of variables (of each type) and constraints. To that end, look up the Profile and Statistics tabs.} 
+
+\begin{table}[ht]
+\centering
+\caption{Comparison between P1 and P2}
+\label{tab:comparison}
+\small
+\begin{tabular}{l|c|c}
+ & \textbf{P1} & \textbf{P2} \\
+\hline
+Optimal Objective Value & 0.723773179127243 & 0.799239077773661 \\
+\hline
+Solving Algorithm       & Dual Simplex      & Branch-and-Cut \\
+\hline
+Solving Time (seconds)  & 0.2910            & 0.1790 \\
+\hline
+Number of Variables     & 13                & 13 \\
+\quad Continuous        & 13                & 1 \\
+\quad Binary            & 0                 & 12 \\
+\hline
+Number of Constraints   & 10                & 10 \\
+\end{tabular}
+\end{table}
+
+We can see that the number of variables and constraints is the same in both models. But the type of variables is different, as P1 has only continuous variables while P2 has binary and continuous variables. 
+
+The optimal objective value is higher in P2, which means that the load of the highest loaded computer is higher when tasks are assigned to only one computer. 
+
+The solving time is lower in P2, which indicates that the solver was able to find the optimal solution faster in this case.
+
+The solving algorithm used is different for both models, with P1 using the Dual Simplex method and P2 using the Branch-and-Cut method. This difference is due to the presence of binary variables in P2, which requires a different approach to solve the problem.
+
+In conclusion, the choice between P1 and P2 depends on the specific requirements of the problem at hand, such as whether tasks can be split across multiple computers or not.
+\newpage
+
+\textbf{c) Solve P2 with the following input data, where a new task has been added. Is it feasible? Compare with the results that are obtained when solving P1 with the same data.}
+\smallskip
+\begin{lstlisting}[language=Java, frame=single, xleftmargin=0pt]
+nTasks=5;
+nCPUs=3;
+rt=[261.27 560.89 310.51 105.80 344.7];
+rc=[505.67 503.68 701.78];
+\end{lstlisting}
+\smallskip
+
+With the new input data, the P2 model is not feasible, as indicated by CPLEX (in the Statistics tab).
+
+This means that it is not possible to assign all tasks to the computers without exceeding their capacities.
+
+However, when solving the P1 model with the same data, we obtain an optimal objective value of: 0.925219007322647.
+
+The optimal assignment of tasks to computers is as follows:
+\begin{itemize}
+    \item CPU 1: 92.52\%
+    \item CPU 2: 92.52\%
+    \item CPU 3: 92.52\%
+\end{itemize}
+
+So, for the given input data, P1 is feasible while P2 is not. This highlights the flexibility of P1 in allowing tasks to be split across multiple computers, which can help in achieving feasibility even when individual computer capacities are limited.
+\bigskip
+
+\textbf{d) Modify the P2 model to allow rejecting tasks, i.e. some tasks might not be processed. To this aim, consider a new input parameter K defining the maximum number of tasks that can be rejected, while keeping the objective of minimizing the load of the highest loaded computer (model P2d). Analyze the obtained optimal objective values when varying the value of K from 1 to 3.} 
+\medskip
+
+The modifications to the P2 model are as follows:
+
+\begin{lstlisting}[language=Java, frame=single, xleftmargin=0pt]
+int K=1; // o 2 o 3 --> maximum number of rejected tasks
+\end{lstlisting}
+\begin{lstlisting}[language=Java, frame=single, xleftmargin=0pt]
+// Constraint 1
+forall(t in T)
+    sum(c in C) x_tc[t,c] <= 1;
+    
+// No more than K rejected tasks
+sum(t in T) (1 - sum(c in C) x_tc[t,c]) <= K;
+\end{lstlisting}
+
+When varying the value of K from 1 to 3, we obtain the following optimal objective values for the given input data in c):
+\begin{itemize}
+    \item For K = 1: \(z^\star = 0.641939068223973\)
+    \item For K = 2: \(z^\star = 0.516680839282536\)
+    \item For K = 3: \(z^\star = 0.372296161190117\)
+\end{itemize}
+
+As we can see, as we allow more tasks to be rejected (increasing K), the optimal objective value decreases. This indicates that by rejecting more tasks, we can reduce the load on the highest loaded computer.
+
+\newpage
+\textbf{e) Modify the P2 model to allow rejecting tasks, in a way different from d). Now change the objective function so as to minimize the amount of not served load, instead of the load of the highest loaded computer (model P2e).}
+
+\begin{lstlisting}[language=Java, frame=single, xleftmargin=0pt]
+// Objective
+minimize sum(t in T) (1 - sum(c in C) x_tc[t,c])*rt[t];
+\end{lstlisting}
+
+The modified objective function minimizes the total amount of not served load by summing up the execution times of the rejected tasks.
+\medskip
+
+Moreover, we have to remove constraint 3 and 4:
+
+\begin{lstlisting}[language=Java, frame=single, xleftmargin=0pt]
+// Constraint 3
+// forall(c in C)
+//	z >= (1/rc[c])*sum(t in T) rt[t]*x_tc[t,c];
+
+// No more than K rejected tasks
+	sum(t in T) (1 - sum(c in C) x_tc[t,c]) <= K;
+\end{lstlisting}
+
+With the input data of c), the optimal objective value obtained is:
+\[z^\star = 261.27\]
+
+This means that the total amount of not served load is 261.27, which corresponds to the execution time of the rejected task (task 1).
+
+In this case, the optimal assignment of tasks to computers is as follows:
+\begin{itemize}
+    \item CPU 1: 89.09\%
+    \item CPU 2: 61.65\%
+    \item CPU 3: 79.92\%
+\end{itemize}
+
+\bigskip
+\textbf{f) Compare all three models P2a, P2d (with K = 1) and P2e in terms of the number of variables, constraints and execution time, with the input data of c).}
+\medskip
+
+\begin{table}[ht]
+\centering
+\caption{Comparison between P2a, P2d (K=1) and P2e}
+\label{tab:comparison_models}
+\small
+\begin{tabular}{l|c|c|c}
+ & \textbf{P2a} & \textbf{P2d (K=1)} & \textbf{P2e} \\
+\hline
+Number of Variables         & 16                & 16              & 15 \\
+\quad Continuous            & 1                 & 1               & 0 \\
+\quad Binary                & 15                & 15              & 15 \\
+\hline
+Number of Constraints       & 11                & 12              & 8 \\
+\hline
+Execution Time (seconds)    & 0.1840           & 0.4570           & 0.3730 \\
+\end{tabular}
+\end{table}
+
+From the comparison table, we can observe the following:
+\begin{itemize}
+    \item The number of variables is the same for P2a and P2d, while P2e has one less variable due to the removal of the continuous variable.
+    \item The number of constraints is highest in P2d due to the additional constraint for rejecting tasks, while P2e has the least number of constraints.
+    \item The execution time is lowest for P2a, followed by P2e, and highest for P2d. This indicates that the additional complexity introduced by the rejection constraint in P2d increases the solving time.
+\end{itemize}
+
+\newpage
+\section{Annexes}
+In this section, the code for each of the previous exercises is presented.
+
+\lstinputlisting[
+    language=Java,     
+    caption={Exercise a) - Implementation of P2 model in OPL},
+    label={lst:modfile}
+]{P2a.mod}
+
+\lstinputlisting[
+    language=Java,     
+    caption={Exercise d) - P2 model allowing task rejection (K=1)},
+    label={lst:modfile}
+]{P2d.mod}
+
+\lstinputlisting[
+    language=Java,     
+    caption={Exercise e) - P2 model minimizing not served load},
+    label={lst:modfile}
+]{P2e.mod}
+
+\end{document}

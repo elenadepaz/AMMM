@@ -1,0 +1,63 @@
+int nTasks=...;
+int nCPUs=...;
+
+range T=1..nTasks;
+range C=1..nCPUs;
+
+float rt[t in T]=...;
+float rc[c in C]=...;
+
+dvar boolean x_tc[t in T, c in C];
+
+// Pre-processing
+execute {
+	var totalLoad=0;
+	for (var t=1;t<=nTasks;t++)
+	totalLoad += rt[t];
+	writeln("Total load "+ totalLoad);
+};
+
+// Pre-processing: check total capacity
+execute {
+    var totalLoad = 0;
+    for (var t=1; t<=nTasks; t++)
+        totalLoad += rt[t];
+    writeln("Total load requested: ", totalLoad);
+
+    var totalCapacity = 0;
+    for (var c=1; c<=nCPUs; c++)
+        totalCapacity += rc[c];
+    writeln("Total CPU capacity: ", totalCapacity);
+
+    if (totalCapacity < totalLoad) {
+        writeln("ERROR: Total CPU capacity is insufficient to serve all tasks!");
+        stop();
+    } else {
+        writeln("Pre-check passed: CPUs have enough capacity.");
+    }
+};
+
+// Objective
+minimize sum(t in T) (1 - sum(c in C) x_tc[t,c])*rt[t];
+
+subject to{
+	// Constraint 1
+	forall(t in T)
+		sum(c in C) x_tc[t,c] <= 1;
+		
+	// Constraint 2
+	forall(c in C)
+		sum(t in T) rt[t]*x_tc[t,c] <= rc[c];
+}
+
+// Post-processing
+execute {
+	for (var c=1;c<=nCPUs;c++) {
+		var load=0;
+		for (var t=1;t<=nTasks;t++)
+			load+=(rt[t]* x_tc[t][c]);
+			load = (1/rc[c])*load;
+			writeln("CPU " + c + " loaded at " + 100*load + "%");
+	}
+};
+ 
