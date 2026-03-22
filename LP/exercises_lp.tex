@@ -1,0 +1,352 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{tikz}
+\usetikzlibrary{patterns}
+\usepackage{geometry}
+\geometry{margin=1.7cm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{nicematrix}
+\usepackage{eurosym} % para el euro
+\setlength{\parindent}{0pt}
+\title{Linear Programming\\Algorithmic Methods for Mathematical Models}
+\author{Elena de Paz Obiols}
+\date{\today}
+\usepackage{float}
+
+\begin{document}
+
+
+
+\maketitle
+
+\section*{Problem 1: Workstations}
+
+A company makes three products and has available four workstations. The production time (in
+minutes) per unit produced varies from workstation to workstation as shown below:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+& Workstation 1 & Workstation 2 & Workstation 3 & Workstation 4 \\
+\hline
+Product 1 & 5 & 7 & 4 & 10 \\
+\hline
+Product 2 & 6 & 12 & 8 & 15 \\
+\hline
+Product 3 & 13 & 14 & 9 & 17 \\
+\hline
+\end{tabular}
+\end{table}
+
+Similarly the profit (e) contribution per unit varies from workstation to workstation as below:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+& Workstation 1 & Workstation 2 & Workstation 3 & Workstation 4 \\
+\hline
+Product 1 & 10 & 8 & 6 & 9 \\
+\hline
+Product 2 & 18 & 20 & 15 & 17 \\
+\hline
+Product 3 & 15 & 16 & 13 & 17 \\
+\hline
+\end{tabular}
+\end{table}
+
+If next week there are 35 working hours available at each workstation, how much of each product
+should be produced to maximize profit given that we need at least 100 units of product 1, 150
+units of product 2 and 100 units of product 3?
+
+Formulate this problem as a linear program.
+
+
+\medskip
+\textbf{Solution:} 
+
+\textbf{Decision variables:}
+
+\begin{itemize}
+    \item $x_{ij}$: number of units of product $i$ produced at workstation $j$, for $i=1,2,3$ and $j=1,2,3,4$.
+\end{itemize}
+
+\textbf{Objective function:}
+\begin{equation*}
+    \text{Maximize } Z = 10x_{11} + 8x_{12} + 6x_{13} + 9x_{14} + 18x_{21} + 20x_{22} + 15x_{23} + 17x_{24} + 15x_{31} + 16x_{32} + 13x_{33} + 17x_{34} 
+\end{equation*}
+\textbf{Constraints:}
+\begin{enumerate}
+    \item Time constraints at each workstation:
+    \begin{align*}
+        5x_{11} + 6x_{21} + 13x_{31} &\leq 2100 \quad \text{(Workstation 1)} \\
+        7x_{12} + 12x_{22} + 14x_{32} &\leq 2100 \quad \text{(Workstation 2)} \\
+        4x_{13} + 8x_{23} + 9x_{33} &\leq 2100 \quad \text{(Workstation 3)} \\
+        10x_{14} + 15x_{24} + 17x_{34} &\leq 2100 \quad \text{(Workstation 4)}
+    \end{align*}
+    
+    \item Minimum production requirements:
+    \begin{align*}
+        x_{11} + x_{12} + x_{13} + x_{14} &\geq 100 \quad \text{(Product 1)} \\
+        x_{21} + x_{22} + x_{23} + x_{24} &\geq 150 \quad \text{(Product 2)} \\
+        x_{31} + x_{32} + x_{33} + x_{34} &\geq 100 \quad \text{(Product 3)}
+    \end{align*}
+    
+    \item Non-negativity constraints:
+    \begin{align*}
+        x_{ij} &\geq 0 \quad \text{for all } i=1,2,3; j=1,2,3,4
+    \end{align*}
+\end{enumerate}
+
+\newpage
+\section*{Problem 2: Cargo plane}
+
+A cargo plane has three compartments for storing cargo: front, centre and rear. These compart
+ments have the following limits on both weight and volume:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Compartment & Weight capacity (tonnes) & Volume capacity (m$^3$) \\
+\hline
+Front & 10 & 6800 \\
+\hline
+Centre & 16 & 8700 \\
+\hline
+Rear & 8 & 5300 \\
+\hline
+\end{tabular}
+\end{table}
+
+Furthermore, for each compartment the ratio (weight in that compartment) / (weight capacity
+in that compartment) must be the same, to maintain the balance of the plane.
+The following four cargoes are available for shipment on the next flight:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+Cargo & Weight (tonnes) & Volume (m$^3$/tonne) & Profit ($\euro$/tonne) \\
+\hline
+C1 & 18 & 480 & 310 \\
+\hline
+C2 & 15 & 650 & 380 \\
+\hline
+C3 & 23 & 580 & 350 \\
+\hline
+C4 & 12 & 390 & 285 \\
+\hline
+\end{tabular}
+\end{table}
+
+ny proportion of these cargoes can be accepted. The objective is to determine how much (if
+any) of each cargo C1, C2, C3 and C4 should be accepted and how to distribute each among
+the compartments so that the total profit for the flight is maximised.
+
+
+Formulate the above problem as a linear program.
+
+\medskip
+\textbf{Solution:}
+
+\textbf{Decision variables:}
+\begin{itemize}
+    \item $x_{ij}$: amount of cargo $i$ stored in compartment $j$, for $i=1,2,3,4$ and $j=F,C,R$ (Front, Centre, Rear).
+\end{itemize}
+\textbf{Objective function:}
+\begin{equation*}
+    \text{Maximize } Z = 310(x_{1F} + x_{1C} + x_{1R}) + 380(x_{2F} + x_{2C} + x_{2R}) + 350(x_{3F} + x_{3C} + x_{3R}) + 285(x_{4F} + x_{4C} + x_{4R})
+\end{equation*}
+\textbf{Constraints:}
+\begin{enumerate}
+    \item Weight capacity constraints:
+    \begin{align*}
+        x_{1F} + x_{2F} + x_{3F} + x_{4F} &\leq 10 \quad \text{(Front)} \\
+        x_{1C} + x_{2C} + x_{3C} + x_{4C} &\leq 16 \quad \text{(Centre)} \\
+        x_{1R} + x_{2R} + x_{3R} + x_{4R} &\leq 8 \quad \text{(Rear)}
+    \end{align*}
+    
+    \item Volume capacity constraints:
+    \begin{align*}
+        480x_{1F} + 650x_{2F} + 580x_{3F} + 390x_{4F} &\leq 6800 \quad \text{(Front)} \\
+        480x_{1C} + 650x_{2C} + 580x_{3C} + 390x_{4C} &\leq 8700 \quad \text{(Centre)} \\
+        480x_{1R} + 650x_{2R} + 580x_{3R} + 390x_{4R} &\leq 5300 \quad \text{(Rear)}
+    \end{align*}
+    
+    \item Balance constraint:
+    \begin{align*}
+        \frac{x_{1F} + x_{2F} + x_{3F} + x_{4F}}{10} = \frac{x_{1C} + x_{2C} + x_{3C} + x_{4C}}{16} = \frac{x_{1R} + x_{2R} + x_{3R} + x_{4R}}{8}
+    \end{align*}
+    
+    \item Non-negativity constraints:
+    \begin{align*}
+        x_{ij} &\geq 0 \quad \text{for all } i=1,2,3,4; j=F,C,R
+    \end{align*}
+\end{enumerate}
+
+\newpage
+\section*{Problem 3: Canning}
+
+ A canning company operates two canning plants. The growers are willing to supply fresh fruits
+in the following amounts:
+\begin{itemize}
+    \item S1: 200 tonnes at 11 $\euro$/tonne
+    \item S2: 310 tonnes at 10 $\euro$/tonne
+    \item S3: 420 tonnes at 9 $\euro$/tonne
+\end{itemize}
+
+Shipping costs in $\euro$ per tonne are:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+& Plant A & Plant B \\
+\hline
+S1 & 3 & 3.5 \\
+\hline
+S2 & 2 & 2.5 \\
+\hline
+S3 & 6 & 4 \\
+\hline
+\end{tabular}
+\end{table}
+
+Plant capacities and labour costs are:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+& Plant A & Plant B \\
+\hline
+Capacity & 460 tonnes & 560 tonnes \\
+\hline
+Labour cost & 26 \euro/tonne & 21 \euro/tonne \\
+\hline
+\end{tabular}
+\end{table}
+
+The canned fruits are sold at 50 e/tonne to the distributors. The company can sell at this price
+all they can produce. The objective is to find the best mixture of the quantities supplied by the
+three growers to the two plants so that the company maximises its profits.
+
+
+Formulate the above problem as a linear program.
+
+\medskip
+\textbf{Solution:}
+
+\textbf{Decision variables:}
+\begin{itemize}
+    \item $x_{ij}$: amount of fruit supplied by grower $i$ to plant $j$, for $i=1,2,3$ and $j=A,B$.
+\end{itemize}
+\textbf{Objective function:}
+\begin{equation*}
+    \text{Maximize } Z = 50(x_{1A} + x_{1B} + x_{2A} + x_{2B} + x_{3A} + x_{3B}) - (11x_{1A} + 10x_{2A} + 9x_{3A} + 11x_{1B} + 10x_{2B} + 9x_{3B}) - (3x_{1A} + 2x_{2A} + 6x_{3A} + 3.5x_{1B} + 2.5x_{2B} + 4x_{3B}) - (26(x_{1A} + x_{2A} + x_{3A}) + 21(x_{1B} + x_{2B} + x_{3B}))
+\end{equation*}
+\textbf{Constraints:}
+\begin{enumerate}
+    \item Supply constraints:
+    \begin{align*}
+        x_{1A} + x_{1B} &\leq 200 \quad \text{(Grower S1)} \\
+        x_{2A} + x_{2B} &\leq 310 \quad \text{(Grower S2)} \\
+        x_{3A} + x_{3B} &\leq 420 \quad \text{(Grower S3)}
+    \end{align*}
+    
+    \item Plant capacity constraints:
+    \begin{align*}
+        x_{1A} + x_{2A} + x_{3A} &\leq 460 \quad \text{(Plant A)} \\
+        x_{1B} + x_{2B} + x_{3B} &\leq 560 \quad \text{(Plant B)}
+    \end{align*}
+    
+    \item Non-negativity constraints:
+    \begin{align*}
+        x_{ij} &\geq 0 \quad \text{for all } i=1,2,3; j=A,B
+    \end{align*}
+\end{enumerate}
+
+\newpage
+\section*{Problem 4: Manufacturer}
+A company manufactures four products (1, 2, 3, 4) on two machines (A and B). The time (in
+minutes) to process one unit of each product on each machine is shown below:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+& Machine A & Machine B \\
+\hline
+Product 1 & 10 & 27 \\
+\hline
+Product 2 & 12 & 19 \\
+\hline
+Product 3 & 13 & 33 \\
+\hline
+Product 4 & 8 & 23 \\
+\hline
+\end{tabular}
+\end{table}
+
+The profit per unit for each product (1, 2, 3, 4) is 10 \euro, 12 \euro, 17 \euro and 8 \euro respectively.
+Each unit of product 1 needs to be processed by both machines A and B (let’s say first A and
+then B, although this detail is not important). On the other hand, products 2, 3 and 4 can be
+produced with a single machine, A or B.
+
+The factory is very small and this means that floor space is very limited. Only one week’s
+production is stored in 50 square metres of floor space where the floor space taken up by one unit
+of each product is 0.1, 0.15, 0.5 and 0.05 (square metres) for products 1, 2, 3 and 4 respectively.
+
+Due to customer requirements, the amount of product 3 that is produced should be related to
+the amount of product 2 that is produced. Namely, over a week approximately the number of
+units of product 2 to be produced should be twice as many units of product 3 (±5%).
+
+Machine A is out of action (for maintenance/because of breakdown) 5$\%$ of the time and machine
+B 7$\%$ of the time.
+
+Assuming a working week 35 hours long formulate the problem of how to manufacture these
+products.
+
+\medskip
+\textbf{Solution:}
+
+\textbf{Decision variables:}
+\begin{itemize}
+    \item $x_{1}$: number of units of product 1 produced.
+    \item $x_{p,m}$: number of units of product $p$ produced on machine $m$, for $p=2,3,4$ and $m=A,B$.
+\end{itemize}
+\textbf{Objective function:}
+\begin{equation*}
+    \text{Maximize } Z = 10x_{1} + 12(x_{2A} + x_{2B}) + 17(x_{3A} + x_{3B}) + 8(x_{4A} + x_{4B})
+\end{equation*}
+\textbf{Constraints:}
+\begin{enumerate}
+    \item Machine time constraints:
+    \begin{align*}
+        10x_{1} + 12x_{2A} + 13x_{3A} + 8x_{4A} &\leq 1995 \quad \text{(Machine A)} \\
+        27x_{1} + 19x_{2B} + 33x_{3B} + 23x_{4B} &\leq 2265 \quad \text{(Machine B)}
+    \end{align*}
+    
+    \item Floor space constraint:
+    \begin{align*}
+        0.1x_{1} + 0.15(x_{2A} + x_{2B}) + 0.5(x_{3A} + x_{3B}) + 0.05(x_{4A} + x_{4B}) &\leq 50
+    \end{align*}
+    
+    \item Product relationship constraint:
+    \begin{align*}
+        2(x_{3A} + x_{3B}) - (x_{2A} + x_{2B}) &\leq 0.05(x_{2A} + x_{2B}) \\
+        (x_{2A} + x_{2B}) - 2(x_{3A} + x_{3B}) &\leq 0.05(x_{2A} + x_{2B})
+    \end{align*}
+    
+    \item Non-negativity constraints:
+    \begin{align*}
+        x_{1}, x_{p,m} &\geq 0 \quad \text{for all } p=2,3,4; m=A,B
+    \end{align*}
+\end{enumerate}
+
+\end{document}

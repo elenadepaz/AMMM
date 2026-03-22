@@ -1,11 +1,11 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{amsmath, amssymb, mathtools}
 \usepackage{tikz}
 \usetikzlibrary{patterns}
 \usepackage{geometry}
-\geometry{margin=2.5cm}
+\geometry{margin=1.7cm}
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{nicematrix}
@@ -14,6 +14,7 @@
 \title{Integer Linear Programming\\Algorithmic Methods for Mathematical Models}
 \author{Elena de Paz Obiols}
 \date{\today}
+\usepackage{float}
 
 \begin{document}
 
@@ -356,7 +357,7 @@ Minimize the time needed to complete the investigation of all locations.\\
 The time needed for team \(i\) to complete its investigations is
 \[\sum_{j=1}^N t_{ij} x_{ij} + \sum_{j_1=1}^N \sum_{j_2=1}^N d_{j_1 j_2} (x_{i j_1} \wedge x_{i j_2}) \implies \sum_{\substack{j_1,j_2=1 \\ j_1<j_2}}^{N} d_{j_1 j_2} \cdot y_{i j_1 j_2}\]
 
-
+\newpage
 \section*{Problem 5: Graph Coloring}
 
 \subsection*{Problem Statement}
@@ -638,12 +639,678 @@ A nurse is assigned a set $N$ of patients. For each patient $i \in N$, the nurse
 
 \textbf{Objective function:} 
 
-Minimize the total time required to assist all patients:
-\[\min \max_{i \in N} (s_i + q_i)\]
+Maximize the total profit:
+\[\max \sum_{m \in M} \sum_{i \in P} \text{Profit}_i \cdot x_{i,m}\]
 
-We add a new variable \(z\) to represent \(\max_{i \in N} (s_i + q_i)\) and we minimize \(z\):
-\[\min z\] 
+\newpage
 
-\[\text{subject to } s_i + q_i \leq z \quad \forall i \in N\]
+\section*{Problem 8. Factories}
+
+A company has two factories, one at Liverpool and one at Brighton. In addition, it has four depots with storage facilities at Newcastle, Birmingham, London and Exeter. The company sells its product to six customers C1, C2, ..., C6. Customers can be supplied from a or
+the factory directly.
+
+The distribution costs are known; they are given in the table below (in pounds per ton delivered). A dash in the table indicates the impossibility of certain suppliers for certain depots or customers.
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+& Liverpool & Brighton & Newcastle & Birmingham & London & Exeter\\
+\hline
+Newcastle & 0.5 & - &&&& \\
+Birmingham & 0.5 & 0.3 &&&& \\
+London & 1.0 & 0.5 &&&& \\
+Exeter & 0.2 & 0.2 &&&& \\
+\hline
+C1 & 1.0 & 2.0 & - & 1.0 & - & - \\
+C2 & - & - & 1.5 & 0.5 & 1.5 & - \\
+C3 & 1.5 & - & 0.5 & 0.5 & 2.0 & 0.2 \\
+C4 & 2.0 & - & 1.5 & 1.0 & - & 1.5 \\
+C5 & - & - & - & 0.5 & 0.5 & 0.5 \\
+C6 & 1.0 & - & 1.0 & - & 1.5 & 1.5 \\
+\hline
+\end{tabular}
+\end{center}
+
+Each factory has a monthly capacity given as follows, which cannot be exceeded:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Factory & Monthly Capacity \\ 
+\hline
+Liverpool & 150,000 tons \\ 
+Brighton & 200,000 tons \\ 
+\hline
+\end{tabular}
+\caption{Monthly Capacity for Each Factory}
+\end{table}
+
+Each depot has a maximum monthly throughput given as follows, which cannot be exceeded:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Depot & Maximum Monthly Throughput \\
+\hline
+Newcastle & 70,000 tons \\
+Birmingham & 50,000 tons \\
+London & 100,000 tons \\
+Exeter & 40,000 tons \\
+\hline
+\end{tabular}
+\caption{Maximum Monthly Throughput for Each Depot}
+\end{table}
+
+Each customer has a monthly requirement given as follows, which must be met:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Customer & Monthly Requirement \\ 
+\hline
+C1 & 50,000 tons \\ 
+C2 & 10,000 tons \\ 
+C3 & 40,000 tons \\ 
+C4 & 35,000 tons \\ 
+C5 & 60,000 tons \\ 
+C6 & 20,000 tons \\ 
+\hline
+\end{tabular}
+\caption{Monthly Requirements for Each Customer}
+\end{table}
+
+(a) The company would like to determine what distribution pattern minimises overall cost.
+Formulate the problem as an LP.
+
+(b) There is a possibility of opening new depots at Bristol and Northampton, as well as of
+enlarging the Birmingham depot.
+It is not considered desirable to have more than four depots, and if necessary Newcastle or
+Exeter (or both) can be closed down.
+The monthly costs (in interest charges) of the possible new depots and expansion at Birmingham are given in the table below together with the potential monthly throughputs.
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Depot & Monthly Cost (1000 pounds) & Monthly Throughput (1000 tons) \\ 
+\hline
+Bristol & 12 & 30 \\ 
+Northampton & 4 & 25 \\ 
+Birmingham (expansion) & 3 & 20 \\ 
+\hline
+\end{tabular}
+\caption{Monthly Costs and Throughput for New Depots and Expansion}
+\end{table}
+
+The monthly savings of closing down the Newcastle and Exeter depots are given in the
+following table:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Depot & Monthly Savings (1000 pounds) \\ 
+\hline
+Newcastle & 10 \\ 
+Exeter & 5 \\ 
+\hline
+\end{tabular}
+\caption{Monthly Savings from Closing Depots}
+\end{table}
+
+The distribution costs involving the new depots are given in the following tables (in pounds per
+ton delivered)
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Supplied to & Supplier \\
+\hline
+& Liverpool & Brighton \\
+\hline
+New depots &&\\
+\hline
+Bristol & 0.6 & 0.4 \\
+Northampton & 0.4 & 0.3 \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Supplied to & Supplier \\
+\hline
+& Bristol & Northampton \\
+\hline
+Customers &&\\
+\hline
+C1 & 1.2 & \\
+C2 & 0.6 & 0.4 \\
+C3 & 0.5 & \\
+C4 & & 0.5 \\
+C5 & 0.3 & 0.6 \\
+C6 & 0.8 & 0.9 \\
+\hline
+\end{tabular}
+\end{center}
+
+What would be the best resultant distribution pattern to minimise overall costs? Formulate
+the problem as a MIP. Could you formulate it as an LP?
+
+\textbf{Solution:}\\
+
+\textbf{(a) LP Formulation}\\
+
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{f,d}\) = amount of product shipped from factory \(f\) to depot \(d\) (for all factories \(f\) and depots \(d\)) (of type real non negative)
+  \item \(y_{d,c}\) = amount of product shipped from depot \(d\) to customer \(c\) (for all depots \(d\) and customers \(c\)) (of type real non negative)
+  \item \(z_{f,c}\) = amount of product shipped directly from factory \(f\) to customer \(c\) (for all factories \(f\) and customers \(c\)) (of type real non negative) 
+\end{itemize}
+
+\textbf{Sets:}
+\begin{itemize}
+  \item Factories: \(F = \{\text{Liverpool}, \text{Brighton}\}\)
+  \item Depots: \(D = \{\text{Newcastle}, \text{Birmingham}, \text{London}, \text{Exeter}\}\)
+  \item Customers: \(C = \{\text{C1}, \text{C2}, \text{C3}, \text{C4}, \text{C5}, \text{C6}\}\)
+\end{itemize}
+
+\textbf{Objective function:}
+Minimize total distribution cost:
+\[
+  \min \sum_{f \in F} \sum_{d \in D} c_{f,d} \cdot x_{f,d} + \sum_{d \in D} \sum_{c \in C} c_{d,c} \cdot y_{d,c} + \sum_{f \in F} \sum_{c \in C} c_{f,c} \cdot z_{f,c}      
+\]
+
+\textbf{Constraints:}
+\begin{enumerate}
+  \item Factory capacity constraints:
+  \[\boxed{\sum_{d \in D} x_{f,d} + \sum_{c \in C} z_{f,c} \leq \text{Capacity}_f \quad \forall f \in F}\]
+
+  \item Depot throughput constraints:
+  \[\boxed{\sum_{f \in F} x_{f,d} \geq \sum_{c \in C} y_{d,c} \quad \forall d \in D}\]
+  \[\boxed{\sum_{f \in F} x_{f,d} \leq \text{MaxThroughput}_d \quad \forall d \in D}\]
+
+  \item Customer demand constraints:
+  \[\boxed{\sum_{d \in D} y_{d,c} + \sum_{f \in F} z_{f,c} = \text{Demand}_c \quad \forall c \in C}\]
+
+\end{enumerate}
+
+\textbf{(b) MIP Formulation}
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{f,d}\) = amount of product shipped from factory \(f\) to depot \(d\) (for all factories \(f\) and depots \(d\)) (of type real non negative)
+  \item \(y_{d,c}\) = amount of product shipped from depot \(d\) to customer \(c\) (for all depots \(d\) and customers \(c\)) (of type real non negative)
+  \item \(z_{f,c}\) = amount of product shipped directly from factory \(f\) to customer \(c\) (for all factories \(f\) and customers \(c\)) (of type real non negative) 
+  \item \(w_d\) = 1 if depot \(d\) is open, 0 otherwise (for all depots \(d\)) (of type binary)
+  \item \(e_b\) = 1 if Birmingham depot is expanded, 0 otherwise (of type binary)
+\end{itemize} 
+
+\textbf{Objective function:}
+Minimize total distribution cost including depot costs and savings from closures:
+\[
+  \min \sum_{f \in F} \sum_{d \in D} c_{f,d} \cdot x_{f,d} + \sum_{d \in D} \sum_{c \in C} c_{d,c} \cdot y_{d,c} + \sum_{f \in F} \sum_{c \in C} c_{f,c} \cdot z_{f,c} + \sum_{d \in D_{\text{new}}} \text{Cost}_d \cdot w_d + \text{Cost}_{\text{Birmingham}} \cdot e_b - \sum_{d \in D_{\text{close}}} \text{Savings}_d \cdot (1 - w_d)
+\]
+
+\textbf{Constraints:}
+\begin{enumerate}
+  \item Factory capacity constraints:
+  \[\boxed{\sum_{d \in D} x_{f,d} + \sum_{c \in C} z_{f,c} \leq \text{Capacity}_f \quad \forall f \in F}\]
+
+  \item Depot throughput constraints with opening decision:
+  \[\boxed{\sum_{f \in F} x_{f,d} \geq \sum_{c \in C} y_{d,c} \quad \forall d \in D}\]
+  \[\boxed{\sum_{f \in F} x_{f,d} \leq \text{MaxThroughput}_d \cdot w_d \quad \forall d \in D}\]
+  For Birmingham depot:
+  \[\boxed{\sum_{f \in F} x_{f,\text{Birmingham}} \leq (\text{MaxThroughput}_{\text{Birmingham}} + 20,000) \cdot e_b + \text{MaxThroughput}_{\text{Birmingham}} \cdot (1 - e_b)}\]
+
+  \item Customer demand constraints:
+  \[\boxed{\sum_{d \in D} y_{d,c} + \sum_{f \in F} z_{f,c} = \text{Demand}_c \quad \forall c \in C}\]
+
+  \item Depot opening limit:
+  \[\boxed{\sum_{d \in D_{\text{new}}} w_d + |D| - |D_{\text{close}}| - \sum_{d \in D_{\text{close}}} (1 - w_d) \leq 4}\]
+\end{enumerate}
+
+\newpage
+
+\section*{Problem 9: Engineering factory}
+
+An engineering factory makes seven products (\texttt{PROD\_1} to \texttt{PROD\_7}) on the following machines:
+four grinders, two vertical drills, three horizontal drills, one borer and one planer. Each product
+yields a certain contribution to profit. These quantities (in euros/unit) together with the production
+times (in hours/unit) required on each process are given below. A dash indicates that a product
+does not require a process.
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+& \texttt{PROD\_1} & \texttt{PROD\_2} & \texttt{PROD\_3} & \texttt{PROD\_4} & \texttt{PROD\_5} & \texttt{PROD\_6} & \texttt{PROD\_7} \\
+\hline
+Contribution to profit (\euro/unit) & 10 & 6 & 8 & 4 & 11 & 9 & 3 \\
+\hline
+Grinding (hours/unit) & 0.5 & 0.7 & - & - & 0.3 & 0.2 & 0.5 \\
+\hline
+Vertical drilling (hours/unit) & 0.1 & 0.2 & - & 0.3 & - & 0.6 & - \\
+\hline
+Horizontal drilling (hours/unit) & 0.2 & - & 0.8 & - & - & - & 0.6 \\
+\hline
+Boring (hours/unit) & 0.05 & 0.03 & - & 0.07 & 0.1 & - & 0.08 \\
+\hline
+Planing (hours/unit) & - & - & 0.01 & - & 0.05 & - & 0.05 \\
+\hline
+\end{tabular}
+\end{center}
+
+In the present month (January) and the subsequent months, certain machines will be down
+for maintenance. These machines will be as follows:
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Month & Machines Down for Maintenance \\
+\hline
+January & 1 Grinder \\
+\hline
+February & 2 Horizontal Drills \\
+\hline
+March & 1 Borer \\
+\hline
+April & 1 Vertical Drill \\
+\hline
+May & 1 Grinder and 1 Vertical Drill \\
+\hline
+June & 1 Planer and 1 Horizontal Drill \\
+\hline
+\end{tabular}
+\end{center}
+
+There are upper limits on how much each product can be sold in each month. These are given
+in the following table:
+
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+& \texttt{PROD\_1} & \texttt{PROD\_2} & \texttt{PROD\_3} & \texttt{PROD\_4} & \texttt{PROD\_5} & \texttt{PROD\_6} & \texttt{PROD\_7} \\
+\hline
+January & 500 & 1000 & 300 & 300 & 800 & 200 & 100 \\
+\hline
+February & 600 & 500 & 200 & 0 & 400 & 300 & 150 \\
+\hline
+March & 300 & 600 & 0 & 0 & 500 & 400 & 100 \\
+\hline
+April & 200 & 300 & 400 & 500 & 200 & 0 & 100 \\
+\hline
+May & 0 & 100 & 500 & 100 & 1000 & 300 & 0 \\
+\hline
+June & 500 & 500 & 100 & 300 & 1100 & 500 & 60 \\
+\hline
+\end{tabular}
+\end{center}
+
+It is possible to store up to 100 units of each product at a time at a cost of 0.5 euros per unit per
+month. There are no stocks at present, but it is desired to have a stock of 50 of each type of
+product at the end of June.
+It may be assumed that each month consists of only 24 working days, each with two shifts of 8
+hours each day.
+
+(a) When and what should the factory make in order to maximise the total profit? Formulate
+the problem as an LP.
+(b) Instead of stipulating when each machine is down for maintenance, it is desired to find the
+best month for each machine to be down. Each machine must be down for maintenance in
+one month of the six apart from the grinding machines, only two of which need be down
+in any six months. Extend the model to allow it to make these extra decisions. Can you
+formulate it as an LP?
+
+\textbf{Solution:}\\
+
+\textbf{(a) LP Formulation}\\
+
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{i,m}\) = number of units produced of product \(i\) in month \(m\) (for all products \(i\) and months \(m\)) (of type real non negative)
+  \item \(s_{i,m}\) = number of units stored of product \(i\) at the end of month \(m\) (for all products \(i\) and months \(m\)) (of type real non negative)
+\end{itemize}
+
+\textbf{Sets:}
+\begin{itemize}
+  \item Products: \(P = \{\texttt{PROD\_1}, \texttt{PROD\_2}, \texttt{PROD\_3}, \texttt{PROD\_4}, \texttt{PROD\_5}, \texttt{PROD\_6}, \texttt{PROD\_7}\}\)
+  \item Months: \(M = \{\text{January}, \text{February}, \text{March}, \text{April}, \text{May}, \text{June}\}\)
+  \item Machines: \(K = \{\text{Grinder}, \text{Vertical Drill}, \text{Horizontal Drill}, \text{Borer}, \text{Planer}\}\)
+\end{itemize}
+
+\textbf{Objective function:}
+Maximize total profit minus storage costs:
+\[
+  \max \sum_{m \in M} \sum_{i \in P} \text{Profit}_i \cdot x_{i,m} - \sum_{m \in M} \sum_{i \in P} 0.5 \cdot s_{i,m}  
+\]
+
+\textbf{Constraints:}
+\begin{enumerate}
+  \item Store maximum 100 units of each product:
+  \[\boxed{s_{i,m} \leq 100 \quad \forall i \in P, m \in M}\]
+
+  \item Machine capacity constraints:
+  \[\boxed{\sum_{i \in P} \text{Time}_{i,k} \cdot x_{i,m} \leq 24*8*2*(|Machines_k| - |NonAvailable_{k,m}|)}\quad \forall k \in K, m \in M\] 
+
+  \item Non negative production and storage:
+  \[\boxed{x_{i,m} \geq 0 \quad \forall i \in P, m \in M}\]
+  \[\boxed{s_{i,m} \geq 0 \quad \forall i \in P, m \in M}\]
+
+  \item Balancing production, storage and sales:
+  Let \(d_{i,m} \) be the demand (sales limit) for product \(i\) in month \(m\).
+  \begin{align*}
+    &\text{For month } m=1: & x_{i,1} &= d_{i,1} + s_{i,1} \\
+    &\text{For month } 1 < m < 6: & x_{i,m_0-1} + s_{i,m_0-1} &= d_{i,m_0} + s_{i,m_0} \\
+    &\text{For month } m=6: & x_{i,6} + s_{i,5} &= d_{i,6} + 50
+  \end{align*}
+
+  Defining \(s_{i,0}=0\) and \(s_{i,6}=50\), we can express our constraints as:
+  \[\boxed{x_{i,m-1} + s_{i,m-1} = d_{i,m} + s_{i,m} \quad \forall i \in P, m \in M}\]
+
+  \item Production limits:
+  \[\boxed{x_{i,m} \leq \text{MaxProduction}_{i,m} \quad \forall i \in P, m \in M}\]
+
+\end{enumerate}
+
+\textbf{(b) MIP Formulation}\\
+
+\textbf{Additional Decision variables:}
+\begin{itemize}
+  \item \(y_{k,m}\) = 1 if machine \(k\) is down for maintenance in month \(m\), 0 otherwise (for all machines \(k\) and months \(m\)) (of type binary) 
+\end{itemize}
+
+\textbf{Additional Constraints:}
+\begin{enumerate}
+  \item Each machine must be down for maintenance in exactly one month:
+  \[\boxed{\sum_{m \in M} y_{k,m} = 1 \quad \forall k \in K, k \neq \text{Grinder}}\]
+  For Grinder machines (only two need to be down):
+  \[\boxed{\sum_{m \in M} y_{\text{Grinder},m} = 2}\]
+
+  \item Update machine availability based on maintenance schedule:
+  \[\boxed{\sum_{i \in P} \text{Time}_{i,k} \cdot x_{i,m} \leq 24*8*2*(|Machines_k| - y_{k,m}) \quad \forall k \in K, m \in M}\]
+
+\end{enumerate}
+
+Since we have introduced binary variables, the problem can no longer be formulated as an LP, and it must be treated as a MIP.
+
+
+\newpage
+
+\section*{Problem 10: Mining company}
+
+A mining company is going to plan how to continue operating in a certain area for the next
+five years. There are four mines in this area, but it can operate at most three in any one year.
+Although a mine may not operate in a certain year, it is still necessary to keep it open, in the
+sense that royalties are payable, if it is to be operated in a future year. On the other hand, if a
+mine is not going to be worked again, it can be permanently closed down and no more royalties
+need be paid. The yearly royalties payable on each mine kept open are as follows:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Mine & Yearly Royalties \\
+\hline
+Mine 1 & 5 million \euro \\
+Mine 2 & 4 million \euro \\
+Mine 3 & 4 million \euro \\
+Mine 4 & 5 million \euro \\
+\hline
+\end{tabular}
+\end{table}
+
+There is an upper limit on the amount of ore that can be extracted from each mine in a year.
+These upper limits are as follows:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Mine & Upper Limit \\
+\hline
+Mine 1 & $2 \times 10^6$ tons \euro \\
+Mine 2 & $2.5 \times 10^6$ tons \euro \\
+Mine 3 & $1.3 \times 10^6$ tons \euro \\
+Mine 4 & $3 \times 10^6$ tons \euro \\
+\hline
+\end{tabular}
+\end{table}
+
+The ore from the different mines is of varying quality. The quality measurements for each mine
+are given in the following table:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Mine & Quality Measurement \\
+\hline
+Mine 1 & 1.0 \\
+Mine 2 & 0.7 \\
+Mine 3 & 1.5 \\
+Mine 4 & 0.5 \\
+\hline
+\end{tabular}
+\end{table}
+
+Blending ores together results in an ore whose quality is the weighted average of the quality
+measurements of the ingredients. For example, if equal quantities of two ores were combined, the
+resultant ore would have a quality measurement half way between that of the ingredient ores.
+In each year, it is necessary to combine the total outputs from each mine to produce a blended
+ore of exactly some stipulated quality. For each year, these qualities are as follows:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Year & Required Quality \\
+\hline
+Year 1 & 0.9 \\
+Year 2 & 0.8 \\
+Year 3 & 1.2 \\
+Year 4 & 0.6 \\
+Year 5 & 1.0 \\
+\hline
+\end{tabular}
+\end{table}
+
+The final blended ore sells for 10 $\euro$ ton each year. Which mines should be operated each year
+and how much should they produce? Formulate the problem as a MIP.
+
+\textbf{Solution:}\\
+
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{i,t}\) = amount of ore extracted from mine \(i\) in year \(t\) (for all mines \(i\) and years \(t\)) (of type real non negative)
+  \item \(y_{i,t}\) = 1 if mine \(i\) is operated in year \(t\), 0 otherwise (for all mines \(i\) and years \(t\)) (of type binary)
+  \item \(z_{i}\) = 1 if mine \(i\) is kept open, 0 if permanently closed (for all mines \(i\)) (of type binary)
+\end{itemize}
+
+\textbf{Sets:}
+\begin{itemize}
+  \item Mines: \(I = \{\text{Mine 1}, \text{Mine 2}, \text{Mine 3}, \text{Mine 4}\}\)
+  \item Years: \(T = \{1, 2, 3, 4, 5\}\)
+\end{itemize}
+\textbf{Objective function:}
+Maximize total profit minus royalties:
+\[\max \sum_{t \in T} \left(10 \cdot \sum_{i \in I} x_{i,t} - \sum_{i \in I} \text{Royalties}_i \cdot z_i\right)\]  
+\textbf{Constraints:}
+\begin{enumerate}
+  \item Operate at most three mines in any year:
+  \[\boxed{\sum_{i \in I} y_{i,t} \leq 3 \quad \forall t \in T}\]
+
+  \item Upper limit on ore extraction from each mine:
+  \[\boxed{x_{i,t} \leq \text{UpperLimit}_i \cdot y_{i,t} \quad \forall i \in I, t \in T}\]
+
+  \item Linking operation and open status of mines:
+  \[\boxed{y_{i,t} \leq z_i \quad \forall i \in I, t \in T}\]
+
+  \item Quality blending constraint for each year:
+  \[\boxed{\sum_{i \in I} \text{Quality}_i \cdot x_{i,t} = \text{RequiredQuality}_t \cdot \sum_{i \in I} x_{i,t} \quad \forall t \in T}\]
+
+\end{enumerate}
+
+\newpage
+\section*{Problem 11: Departments relocation}
+
+A large company wishes to move some of its departments out of London. There are bene ts to be
+derived from doing this (cheaper housing, government incentives, easier recruitment, etc.). Also,
+however, there will be greater costs of communication between departments. Where should each
+department be located so as to minimise overall yearly cost?
+The company comprises ve departments (A, B, C, D and E). The possible cities for relocation
+are Bristol and Brighton. Alternatively, a department may be kept in London. None of these
+cities (including London) may be the location for more than three of the departments. Bene ts
+to be derived from each relocation are given (in ke per year) as follows:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Department & Bristol & Brighton \\
+\hline
+A & 10 & 10 \\
+B & 15 & 20 \\
+C & 10 & 15 \\
+D & 20 & 15 \\
+E & 5 & 15 \\
+\hline
+\end{tabular}
+\caption{Relocation Benefits (in k\euro per year)}
+\end{table}
+
+Communication costs are determined by $C_{ik}$ and $D_{jl}$, where $C_{ik}$ is the quantity of communication
+between departments $i$ and $k$ per year and $D_{jl}$ is the cost per unit of communication between
+cities $j$ and $l$.
+
+\textbf{Solution:}\\
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{i,j}\) = 1 if department \(i\) is located in city \(j\), 0 otherwise (for all departments \(i\) and cities \(j\)) (of type binary)
+  
+\end{itemize}
+
+\textbf{Sets:}
+\begin{itemize}
+  \item Departments: \(I = \{\text{A}, \text{B}, \text{C}, \text{D}, \text{E}\}\)
+  \item Cities: \(J = \{\text{London}, \text{Bristol}, \text{Brighton}\}\)
+\end{itemize}
+
+\textbf{Objective function:}
+Minimize total communication costs minus relocation benefits:
+\[
+  \min \sum_{i \in I} \sum_{k \in I, k \neq i} \sum_{j \in J} \sum_{l \in J} C_{ik} \cdot D_{jl} \cdot x_{i,j} \cdot x_{k,l} - \sum_{i \in I} \sum_{j \in J, j \neq \text{London}} \text{Benefit}_{i,j} \cdot x_{i,j}
+\]
+
+The first term represents the total communication costs between departments based on their locations, while the second term accounts for the benefits derived from relocating departments out of London.
+
+This is not linear due to the product of decision variables in the communication costs term. To linearize it, we can introduce additional variables and constraints, so we need an other decision variable:
+\begin{itemize}
+  \item \(w_{i,k,j,l}\) = 1 if department \(i\) is located in city \(j\) and department \(k\) is located in city \(l\), 0 otherwise (for all departments \(i, k\) and cities \(j, l\)) (of type binary)
+\end{itemize}
+
+Then we can rewrite the communication costs term as:
+\[
+  \sum_{i \in I} \sum_{k \in I, k \neq i} \sum_{j \in J} \sum_{l \in J} C_{ik} \cdot D_{jl} \cdot w_{i,k,j,l}
+\]
+
+
+\textbf{Constraints:}
+\begin{enumerate}
+  \item Each department must be located in exactly one city:
+  \[\boxed{\sum_{j \in J} x_{i,j} = 1 \quad \forall i \in I}\]
+  \item No more than three departments in any city:
+  \[\boxed{\sum_{i \in I} x_{i,j} \leq 3 \quad \forall j \in J}\]
+  \item Linking \(w_{i,k,j,l}\) with \(x_{i,j}\) and \(x_{k,l}\):
+  \begin{align*}
+    &w_{i,k,j,l} \leq x_{i,j} \quad \forall i, k \in I, i \neq k, j, l \in J\\
+    &w_{i,k,j,l} \leq x_{k,l} \quad \forall i, k \in I, i \neq k, j, l \in J\\
+    &w_{i,k,j,l} \geq x_{i,j} + x_{k,l} - 1 \quad \forall i, k \in I, i \neq k, j, l \in J  
+  \end{align*}
+
+\end{enumerate}
+
+
+\newpage
+\section*{Problem 12: Power stations}
+
+A number of power stations are committed to meeting the following electricity load demands
+over a day:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Time Period & Electricity Load Demand \\
+\hline
+12p.m. to 6a.m. & 15.000 MW \\
+6a.m. to 9a.m. & 30.000 MW \\
+9a.m. to 3p.m. & 25.000 MW \\
+3p.m. to 6p.m. & 40.000 MW \\
+6p.m. to 12p.m. & 27.000 MW \\
+\hline
+\end{tabular}
+\end{table}
+(The demands are for the whole indicated period, not per hour).
+
+There are three types of generating units available: 12 of type 1, 10 of type 2, and 5 of type 3.
+Each generator has to work between a minimum and a maximum level. There is an hourly cost
+of running each generator at minimum level. In addition there is an extra hourly cost for each
+MW at which a unit is operated above minimum level. To start up a generator also involves a
+fixed cost. All this information is given in the table below:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+Type & Minimum & Maximum  & Cost per Hour & Cost per Hour per MW & Startup Cost \\
+ &  Level &  Level & at Minimum & Above Minimum & \\
+\hline
+Type 1 & 850 MW & 2000 MW & 1000 \euro & 2 \euro & 2000 \euro \\
+Type 2 & 1250 MW & 1750 MW & 2600 \euro & 1.3 \euro & 1000 \euro \\
+Type 3 & 1500 MW & 4000 MW & 3000 \euro & 3 \euro & 500 \euro \\
+\hline
+\end{tabular}
+\end{table}
+
+In addition to meeting the estimated load demands there must be sufficient generators working
+at any time to make it possible to meet an increase in load of up to 15$\%$. This increase would
+have to be accomplished by adjusting the output of generators already operating within their
+permitted limits.
+Which generators should be working in which periods of the day to minimize total cost? Construct
+a MIP to answer this question.
+
+\textbf{Solution:}\\
+\textbf{Decision variables:}
+\begin{itemize}
+  \item \(x_{i,t}\) = amount of power generated by generator \(i\) in time period \(t\) (for all generators \(i\) and time periods \(t\)) (of type real non negative)
+  \item \(y_{i,t}\) = 1 if generator \(i\) is operating in time period \(t\), 0 otherwise (for all generators \(i\) and time periods \(t\)) (of type binary)
+  \item \(z_{i,t}\) = 1 if generator \(i\) is started up in time period \(t\), 0 otherwise (for all generators \(i\) and time periods \(t\)) (of type binary)
+\end{itemize}
+
+\textbf{Sets:}
+\begin{itemize}
+  \item Generators: \(I = \{\text{Type 1 (1-12)}, \text{Type 2 (1-10)}, \text{Type 3 (1-5)}\}\)
+  \item Time Periods: \(T = \{\text{12p.m. to 6a.m.}, \text{6a.m. to 9a.m.}, \text{9a.m. to 3p.m.}, \text{3p.m. to 6p.m.}, \text{6p.m. to 12p.m.}\}\)
+\end{itemize}
+
+\textbf{Objective function:}
+Minimize total cost:
+\[
+  \min \sum_{t \in T} \sum_{i \in I} \left( \text{CostMin}_i \cdot y_{i,t} + \text{CostPerMW}_i \cdot (x_{i,t} - \text{MinLevel}_i \cdot y_{i,t}) + \text{StartupCost}_i \cdot z_{i,t} \right)
+\]
+
+\textbf{Constraints:}
+\begin{enumerate}
+  \item Meet electricity load demand with 15\% increase:
+  \[\boxed{\sum_{i \in I} x_{i,t} \geq 1.15 \cdot \text{LoadDemand}_t \quad \forall t \in T}\]
+
+  \item Generator operating limits:
+  \[\boxed{\text{MinLevel}_i \cdot y_{i,t} \leq x_{i,t} \leq \text{MaxLevel}_i \cdot y_{i,t} \quad \forall i \in I, t \in T}\]
+
+  \item Linking startup variable:
+  For the first time period:
+  \[\boxed{z_{i,1} \geq y_{i,1} \quad \forall i \in I}\]
+  For subsequent time periods:
+  \[\boxed{z_{i,t} \geq y_{i,t} - y_{i,t-1} \quad \forall i \in I, t \in T, t > 1}\]
+
+\end{enumerate}
 
 \end{document}
